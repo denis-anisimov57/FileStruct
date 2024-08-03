@@ -1,47 +1,53 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <QString>
+#include "rapidjson-master/include/rapidjson/document.h"
+#include "ini_file.h"
 
 using intId = unsigned long long;
 
 class FileStruct {
     public:
         //! Конструктор по умолчанию
-        FileStruct();
+        FileStruct() = default;
 
         //! Конструктор с параметром
         //! \param pathToJson путь до существующего файла json с данными о файлах
         //! \brief Открывает  json и парсит его для получения данных о файлах
-        FileStruct(std::string pathToJson);
+        FileStruct(std::string pathToIni);
 
         void openNewFolder(std::string path);
 
-        void openExistingFolder(std::string pathToJson);
+        void openData(std::string pathToJson);
 
         void updateFolder(std::string pathToJson);
 
-        void addTag(intId fileId, std::string tag);
+        void addTag(std::string filePath, std::string tag);
 
-        void addTag(std::vector<intId> filesId, std::string tag);
+        void addTag(std::vector<QString> filePaths, std::string tag);
 
-        void removeTag(intId fileId, std::string tag);
+        void removeTag(QString filePath, std::string tag);
 
-        void removeTag(std::vector<intId> filesId, std::string tag);
+        void removeTag(std::vector<QString> filePaths, std::string tag);
 
-        bool isExistTag(intId fileId, std::string tag);
+        bool isExistTag(QString filePath, QString tag);
 
-        bool isExistFile(intId fileId);
+        bool isExistFile(QString filePath);
 
-        void uniteFiles(std::string tag);
+        void uniteFiles(std::string tag); //generate folder with this tag
 
-        void uniteFiles(std::vector<std::string> tags);
+        void uniteFiles(std::vector<std::string> tags); //generate folder with this tags
 
-        void saveToFolder(std::string path);
+        void saveToFolder(std::string path); // saves union from methods above to custom folder
 
-        void saveChanges();
+        void saveChanges(std::string pathToIni); // save changed tags in json
 
         ~FileStruct();
 
     private:
-        //json data;
+//        void addFolder();
+        void addFile();
+        IniFile data;
+        rapidjson::Document json;
 };
