@@ -15,15 +15,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->OpenFolder, &QPushButton::clicked, this, &MainWindow::openFolder);
-    connect(ui->AddTag, &QPushButton::clicked, this, &MainWindow::addTag);
-    connect(ui->FileList, &QListWidget::itemClicked, this, &MainWindow::updateTags);
-    connect(ui->OpenIni, &QPushButton::clicked, this, &MainWindow::openIni);
-    connect(ui->SaveIni, &QPushButton::clicked, this, &MainWindow::saveIni);
-    connect(ui->CombineFiles, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
-    connect(ui->AddExistingTags, &QPushButton::clicked, this, &MainWindow::addExistingTag);
-    connect(ui->RemoveTag, &QPushButton::clicked, this, &MainWindow::removeTag);
-    connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::combineFiles);
+    connect(ui->OpenFolderButton, &QPushButton::clicked, this, &MainWindow::openFolder);
+    connect(ui->AddButton, &QPushButton::clicked, this, &MainWindow::addTag);
+    connect(ui->FileList, &QListWidget::currentRowChanged, this, &MainWindow::updateDisplay);
+    connect(ui->OpenIniButton, &QPushButton::clicked, this, &MainWindow::openIni);
+    connect(ui->SaveIniButton, &QPushButton::clicked, this, &MainWindow::saveIni);
+    connect(ui->GroupButton, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
+    connect(ui->AddExistingButton, &QPushButton::clicked, this, &MainWindow::addExistingTag);
+    connect(ui->RemoveButton, &QPushButton::clicked, this, &MainWindow::removeTag);
+    connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
 }
 
 void MainWindow::openFolder() {
@@ -34,7 +34,7 @@ void MainWindow::openFolder() {
     ui->TagList->clear();
     ui->FileList->clear();
     fileStruct.openNewFolder(folderName.toStdString());
-    qDebug() << folderName;
+    qDebug() << "Opening folder: " << folderName;
     std::vector<std::string> files = fileStruct.getFiles();
     for(auto& file : files) {
         if(file == "Tags") {
@@ -45,14 +45,14 @@ void MainWindow::openFolder() {
 }
 
 void MainWindow::openIni() {
-    QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), "*.ini");
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
     ui->TagList->clear();
     ui->FileList->clear();
     fileStruct.openData(fileName.toStdString());
-    qDebug() << fileName;
+    qDebug() << "Opening ini: " << fileName;
     std::vector<std::string> files = fileStruct.getFiles();
     for(auto& file : files) {
         if(file == "Tags") {
@@ -73,7 +73,7 @@ void MainWindow::addTag() {
     QString tag = QInputDialog::getText(this, tr("Add tag"), tr("Enter tag"), QLineEdit::Normal, "", &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
-        updateTags();
+        updateDisplay();
     }
 }
 
@@ -93,7 +93,7 @@ void MainWindow::addExistingTag() {
     QString tag = QInputDialog::getItem(this, "Select tag to combine", "Tag: ", QTags, 0, false, &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
-        updateTags();
+        updateDisplay();
     }
 }
 
@@ -119,11 +119,14 @@ void MainWindow::removeTag() {
     QString tag = QInputDialog::getItem(this, "Select tag to remove", "Tag: ", QTags, 0, false, &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
-        updateTags();
+        updateDisplay();
     }
 }
 
-void MainWindow::updateTags() { // and update image
+void MainWindow::updateDisplay() {
+    if(!ui->FileList->currentItem()) {
+        return;
+    }
     ui->TagList->clear();
     std::vector<std::string> tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
     for(auto& tag : tags) {
@@ -135,7 +138,7 @@ void MainWindow::updateTags() { // and update image
 
     QPixmap img(ui->FileList->currentItem()->text());
     if (!ui->graphicsView->scene()) {
-        qDebug() << "No Scene!";
+        qDebug() << "Creating scene";
         QGraphicsScene *scene = new QGraphicsScene(this);
         ui->graphicsView->setScene(scene);
     }
@@ -148,18 +151,24 @@ void MainWindow::updateTags() { // and update image
 
 void MainWindow::saveIni() {
     if(!ui->FileList->count()) {
+        QMessageBox msgBox;
+        msgBox.setText("Nothing to save");
+        msgBox.exec();
         return;
     }
-    QString fileName =  QFileDialog::getSaveFileName(this, tr("Save Inifile"), "*.ini");
+    QString fileName =  QFileDialog::getSaveFileName(this, tr("Save Inifile"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
-    qDebug() << fileName;
+    qDebug() << "Saved in: " << fileName;
     fileStruct.saveChanges(fileName.toStdString());
 }
 
 void MainWindow::showGroupDialog() {
     if(!ui->FileList->count()) {
+        QMessageBox msgBox;
+        msgBox.setText("Nothing to group");
+        msgBox.exec();
         return;
     }
     QStringList QTags;
@@ -167,18 +176,13 @@ void MainWindow::showGroupDialog() {
     for(auto& tag : tags) {
         QTags.push_back(QString::fromStdString(tag));
     }
-//    bool ok = false;
-//    QString tag = QInputDialog::getItem(this, "Select tag to combine", "Tag: ", QTags, 0, false, &ok);
-//    if(ok && !tag.isEmpty()) {
-//        fileStruct.uniteFiles(tag.toStdString());
-//    }
     groupUi->setNewTags(QTags);
     groupUi->exec();
 }
 
-void MainWindow::combineFiles(std::vector<std::string> tags) {
+void MainWindow::groupFiles(std::vector<std::string> tags) {
     if(!tags.empty()) {
-        fileStruct.uniteFiles(tags);
+        fileStruct.groupFiles(tags);
     }
 }
 

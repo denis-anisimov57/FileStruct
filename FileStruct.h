@@ -38,9 +38,9 @@ class FileStruct {
 
         void removeUnusedTags(); //
 
-        void uniteFiles(std::string tag); //generate folder with this tag
+        void groupFiles(std::string tag); //generate folder with this tag
 
-        void uniteFiles(std::vector<std::string> tags); //generate folder with this tags
+        void groupFiles(std::vector<std::string> tags); //generate folder with this tags
 
         void saveToFolder(std::string path); // saves union from methods above to custom folder(not done yet)
 

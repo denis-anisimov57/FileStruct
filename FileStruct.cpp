@@ -99,7 +99,7 @@ void FileStruct::removeUnusedTags() {
     }
 }
 
-void FileStruct::uniteFiles(std::string tag) {
+void FileStruct::groupFiles(std::string tag) {
     QDir* combinedFiles = new QDir(".");
     combinedFiles->mkdir("relatedFiles");
     combinedFiles->cd("relatedFiles");
@@ -123,7 +123,7 @@ void FileStruct::uniteFiles(std::string tag) {
     }
 }
 
-void FileStruct::uniteFiles(std::vector<std::string> tags) {
+void FileStruct::groupFiles(std::vector<std::string> tags) {
     QDir* combinedFiles = new QDir(".");
     combinedFiles->mkdir("relatedFiles");
     combinedFiles->cd("relatedFiles");

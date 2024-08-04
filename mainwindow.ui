@@ -20,49 +20,49 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
         <item>
-         <widget class="QPushButton" name="OpenFolder">
+         <widget class="QPushButton" name="OpenFolderButton">
           <property name="text">
            <string>OpenFolder</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="OpenIni">
+         <widget class="QPushButton" name="OpenIniButton">
           <property name="text">
            <string>OpenIni</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="SaveIni">
+         <widget class="QPushButton" name="SaveIniButton">
           <property name="text">
            <string>SaveIni</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="CombineFiles">
+         <widget class="QPushButton" name="GroupButton">
           <property name="text">
-           <string>CombineFiles</string>
+           <string>Group files</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="AddExistingTags">
+         <widget class="QPushButton" name="AddExistingButton">
           <property name="text">
            <string>AddExistingTag</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="AddTag">
+         <widget class="QPushButton" name="AddButton">
           <property name="text">
            <string>AddTag</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="RemoveTag">
+         <widget class="QPushButton" name="RemoveButton">
           <property name="text">
            <string>RemoveTag</string>
           </property>

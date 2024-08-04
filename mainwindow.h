@@ -27,9 +27,9 @@ private slots:
     void addTag();
     void addExistingTag();
     void removeTag();
-    void updateTags();
+    void updateDisplay();
     void saveIni();
-    void combineFiles(std::vector<std::string> tags);
+    void groupFiles(std::vector<std::string> tags);
     void showGroupDialog();
 };
 #endif // MAINWINDOW_H
