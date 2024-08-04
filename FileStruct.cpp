@@ -5,78 +5,6 @@
 #include <QDebug>
 #include <QDateTime>
 #include <fstream>
-#include "rapidjson-master/include/rapidjson/writer.h"
-#include "rapidjson-master/include/rapidjson/ostreamwrapper.h"
-
-// QFileInfo(lastModified), QFile, QDir, QDirIterator
-
-//FileStruct::FileStruct(QString pathToFolder, QString pathToJson) {
-//    if(!pathToJson.isEmpty()) {
-//        QString jsonStr;
-//        QFile file(pathToJson);
-//        if(file.open(QIODevice::ReadOnly)) {
-//            jsonStr = file.readAll();
-//            file.close();
-//        }
-//        qDebug() << jsonStr;
-//        if (json.Parse(jsonStr.toStdString().c_str()).HasParseError()) {
-//            throw(std::runtime_error("Invalid json"));
-//        }
-//        return;
-//    }
-
-//    QDirIterator it(pathToFolder, {"*"}, QDir::Files, QDirIterator::Subdirectories);
-//    json.SetObject();
-//    rapidjson::Value files(rapidjson::kArrayType);
-
-//    for(; it.hasNext(); it.next()) {
-//        if(!it.filePath().isEmpty()) {
-//            qDebug() << it.filePath() << " " << it.fileInfo().lastModified().toString();
-//            rapidjson::Value file(rapidjson::kObjectType);
-
-//            rapidjson::Value filePath;
-//            char buffer[it.filePath().size()];
-//            int len = sprintf(buffer, "%s", it.filePath().toStdString().c_str());
-//            filePath.SetString(buffer, len, json.GetAllocator());
-
-//            rapidjson::Value tags(rapidjson::kArrayType);
-
-//            file.AddMember("FilePath", filePath, json.GetAllocator());
-//            file.AddMember("Tags", tags, json.GetAllocator());
-//            files.PushBack(file, json.GetAllocator());
-//        }
-//    }
-//    json.AddMember("Files", files, json.GetAllocator());
-
-//    std::ofstream ofs("output.json");
-//    rapidjson::OStreamWrapper osw(ofs);
-//    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
-//    json.Accept(writer);
-//}
-
-//void FileStruct::addTag(QString filePath, QString tag) {
-//    if(json.IsObject() && json.HasMember("Files") && json["Files"].IsArray()) {
-//        rapidjson::Value::Array files = json["Files"].GetArray();
-//        for(auto it = files.Begin(); it != files.end(); ++it) {
-//            rapidjson::Value& file = *it;
-//            if(file.IsObject() && file.HasMember("FilePath") && file["FilePath"].IsString() && file["FilePath"].GetString() == filePath) {
-//                if(file.HasMember("Tags") && file["Tags"].IsArray()) {
-//                    rapidjson::Value::Array tags = file["Tags"].GetArray();
-//                    for(auto tagIt = tags.Begin(); tagIt != tags.end(); ++tagIt) {
-//                        if(tagIt->GetString() == tag) {
-//                            return;
-//                        }
-//                    }
-//                    rapidjson::Value tagValue;
-//                    char buffer[tag.size()];
-//                    int len = sprintf(buffer, "%s", tag.toStdString().c_str());
-//                    tagValue.SetString(buffer, len, json.GetAllocator());
-//                    tags.PushBack(tagValue, json.GetAllocator());
-//                }
-//            }
-//        }
-//    }
-//}
 
 FileStruct::FileStruct(std::string pathToIni): data(pathToIni) {}
 
@@ -91,57 +19,145 @@ void FileStruct::openNewFolder(std::string path) {
     }
 }
 
+void FileStruct::openData(std::string pathToIni) {
+    data.open(pathToIni);
+}
+
+std::vector<std::string> FileStruct::getFiles() {
+    std::vector<std::string> files;
+    SectionsMap sections = data.getSections();
+    for(auto& file : sections) {
+        files.push_back(file.first);
+    }
+    return files;
+}
+
+std::vector<std::string> FileStruct::getTags(std::string fileName) {
+    std::vector<std::string> tags;
+    std::map<std::string, std::string> tagsMap = data.getSections().at(fileName);
+    for(auto& tag : tagsMap) {
+        if(tag.first == "IsExist") {
+            continue;
+        }
+        tags.push_back(tag.first);
+    }
+    return tags;
+}
+
+std::vector<std::string> FileStruct::getAllTags() {
+    std::vector<std::string> tags;
+    std::map<std::string, std::string> tagsMap = data.getSections().at("Tags");
+    for(auto& tag : tagsMap) {
+        if(tag.first == "IsExist") {
+            continue;
+        }
+        tags.push_back(tag.first);
+    }
+    return tags;
+}
+
 void FileStruct::addTag(std::string filePath, std::string tag) {
     if(data.isSectionExist(filePath)) {
+        data.writeBool("Tags", tag, true);
         data.writeBool(filePath, tag, true);
     }
 }
 
+void FileStruct::addTag(std::vector<std::string> filePaths, std::string tag) {
+    for(auto& filePath : filePaths) {
+        if(data.isSectionExist(filePath)) {
+            data.writeBool("Tags", tag, true);
+            data.writeBool(filePath, tag, true);
+        }
+    }
+}
 
+void FileStruct::removeTag(std::string filePath, std::string tag) {
+    data.deleteKey(filePath, tag);
+}
+
+void FileStruct::removeTag(std::vector<std::string> filePaths, std::string tag) {
+    for(auto& filePath : filePaths) {
+        data.deleteKey(filePath, tag);
+    }
+}
+
+void FileStruct::removeUnusedTags() {
+    std::map<std::string, std::string> tags = data.getSections().at("Tags");
+    SectionsMap sections = data.getSections();
+    for(auto& tag : tags) {
+        bool isExist = false;
+        for(auto& section : sections) {
+            isExist = data.isKeysExist(section.first, tag.first);
+            if(isExist) {
+                break;
+            }
+        }
+        if(!isExist) {
+            data.deleteKey("Tags", tag.first);
+        }
+    }
+}
+
+void FileStruct::uniteFiles(std::string tag) {
+    QDir* combinedFiles = new QDir(".");
+    combinedFiles->mkdir("relatedFiles");
+    combinedFiles->cd("relatedFiles");
+    combinedFiles->setFilter(QDir::Files);
+    qDebug() << "Deleting previous group: \n";
+    for(auto& dirFile : combinedFiles->entryList()) {
+        combinedFiles->remove(dirFile);
+        qDebug() << dirFile;
+    }
+    delete combinedFiles;
+    SectionsMap files = data.getSections();
+    qDebug() << "Copying files: \n";
+    for(auto& filePath : files) {
+        if(filePath.first != "Tags" && data.isKeysExist(filePath.first, tag)) {
+            QFileInfo file(QString::fromStdString(filePath.first));
+            QString old_name = QString::fromStdString(filePath.first);
+            QString new_name = "relatedFiles/" + file.fileName();
+            bool ok = QFile::copy(old_name, new_name);
+            qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+        }
+    }
+}
+
+void FileStruct::uniteFiles(std::vector<std::string> tags) {
+    QDir* combinedFiles = new QDir(".");
+    combinedFiles->mkdir("relatedFiles");
+    combinedFiles->cd("relatedFiles");
+    combinedFiles->setFilter(QDir::Files);
+    qDebug() << "Deleting previous group: \n";
+    for(auto& dirFile : combinedFiles->entryList()) {
+        combinedFiles->remove(dirFile);
+        qDebug() << dirFile;
+    }
+    delete combinedFiles;
+    SectionsMap files = data.getSections();
+    qDebug() << "Copying files: \n";
+    for(auto& filePath : files) {
+        bool containTags = true;
+        if(filePath.first != "Tags") {
+            for(auto& tag : tags) {
+                if(!data.isKeysExist(filePath.first, tag)) {
+                    containTags = false;
+                    break;
+                }
+            }
+            if(containTags) {
+                QFileInfo file(QString::fromStdString(filePath.first));
+                QString old_name = QString::fromStdString(filePath.first);
+                QString new_name = "relatedFiles/" + file.fileName();
+                bool ok = QFile::copy(old_name, new_name);
+                qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+            }
+        }
+    }
+}
 
 void FileStruct::saveChanges(std::string pathToIni) {
     data.saveToFile(pathToIni);
-    //    std::ofstream ofs();
-//    rapidjson::OStreamWrapper osw(ofs);
-//    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw);
-//    json.Accept(writer);
 }
 
-//????
-//bool FileStruct::isExistFile(QString filePath) {
-//    if(json.IsObject() && json.HasMember("Files") && json["Files"].IsArray()) {
-//        rapidjson::Value::Array files = json["Files"].GetArray();
-//        for(auto it = files.Begin(); it != files.end(); ++it) {
-//            rapidjson::Value& file = *it;
-//            if(file.IsObject() && file.HasMember("FilePath") && file["FilePath"].IsString() && file["FilePath"].GetString() == filePath) {
-//                return true;
-//            }
-//        }
-//    }
-//    return false;
-//}
-
-
-//bool FileStruct::isExistTag(QString filePath, QString tag) {
-//    if(json.IsObject() && json.HasMember("Files") && json["Files"].IsArray()) {
-//        rapidjson::Value::Array files = json["Files"].GetArray();
-//        for(auto it = files.Begin(); it != files.end(); ++it) {
-//            rapidjson::Value& file = *it;
-//            if(file.IsObject() && file.HasMember("FilePath") && file["FilePath"].IsString() && file["FilePath"].GetString() == filePath) {
-//                if(file.HasMember("Tags") && file["Tags"].IsArray()) {
-//                    rapidjson::Value::Array tags = file["Tags"].GetArray();
-//                    for(auto tagIt = tags.Begin(); tagIt != tags.end(); ++tagIt) {
-//                        if(tagIt->GetString() == tag) {
-//                            return true;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//    return false;
-//}
-
 FileStruct::~FileStruct() {}
-
-

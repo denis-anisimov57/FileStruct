@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "FileStruct.h"
+#include "groupdialog.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,6 +18,18 @@ public:
     ~MainWindow();
 
 private:
+    FileStruct fileStruct;
+    GroupDialog* groupUi;
     Ui::MainWindow *ui;
+private slots:
+    void openFolder();
+    void openIni();
+    void addTag();
+    void addExistingTag();
+    void removeTag();
+    void updateTags();
+    void saveIni();
+    void combineFiles(std::vector<std::string> tags);
+    void showGroupDialog();
 };
 #endif // MAINWINDOW_H

@@ -21,6 +21,7 @@ class IniFile
         /// @note Должен перезаписывать файл кешированой конифгурацией
         ~IniFile();
 
+        void open(const std::string& path);
         /// Запись кешированной конфигурации в файл
         void save();
 
