@@ -4,49 +4,44 @@
 #include <QString>
 #include "ini_file.h"
 
-using intId = unsigned long long;
-
 class FileStruct {
     public:
         //! Конструктор по умолчанию
         FileStruct() = default;//
 
-        //! Конструктор с параметром
-        //! \param pathToJson путь до существующего файла json с данными о файлах
-        //! \brief Открывает  json и парсит его для получения данных о файлах
-        FileStruct(std::string pathToIni);//
+        void openNewFolder(const std::string& path);//
 
-        void openNewFolder(std::string path);//
+        void openData(const std::string& pathToIni);//
 
-        void openData(std::string pathToJson);
+        void addData(const std::string& pathToIni);
 
-        void updateFolder(std::string pathToJson);
+        std::vector<std::string> addFolder(const std::string& path);//
 
         std::vector<std::string> getFiles();//
 
-        std::vector<std::string> getTags(std::string fileName);//
+        std::vector<std::string> getTags(const std::string& fileName);//
 
         std::vector<std::string> getAllTags();//
 
-        void addTag(std::string filePath, std::string tag);//
+        void addTag(const std::string& filePath, const std::string& tag);//
 
-        void addTag(std::vector<std::string> filePaths, std::string tag);//
+        void addTag(const std::vector<std::string>& filePaths, const std::string& tag);//
 
-        void removeTag(std::string filePath, std::string tag);//
+        void removeTag(const std::string& filePath, const std::string& tag);//
 
-        void removeTag(std::vector<std::string> filePaths, std::string tag);//
+        void removeTag(const std::vector<std::string>& filePaths, const std::string& tag);//
 
         void removeUnusedTags(); //
 
-        void groupFiles(std::string tag); //generate folder with this tag
+        void groupFiles(const std::string& tag); //generates folder with this tag
 
-        void groupFiles(std::vector<std::string> tags); //generate folder with this tags
+        void groupFiles(const std::vector<std::string>& tags); //generates folder with this tags
 
-        void saveToFolder(std::string path); // saves union from methods above to custom folder(not done yet)
+        void saveToFolder(const std::string& path); // saves union from methods above to custom folder
 
-        void saveChanges(std::string pathToIni); // save changed tags in json
+        void saveChanges(const std::string& pathToIni); // saves changed tags in ini
 
-        ~FileStruct();
+        ~FileStruct();//
 
     private:
         IniFile data;

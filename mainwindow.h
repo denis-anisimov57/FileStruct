@@ -23,13 +23,16 @@ private:
     Ui::MainWindow *ui;
 private slots:
     void openFolder();
+    void addFolder();
     void openIni();
+    void addNewIni();
     void addTag();
     void addExistingTag();
     void removeTag();
     void updateDisplay();
     void saveIni();
-    void groupFiles(std::vector<std::string> tags);
+    void groupFiles(const std::vector<std::string>& tags);
+    void saveGroup();
     void showGroupDialog();
 };
 #endif // MAINWINDOW_H

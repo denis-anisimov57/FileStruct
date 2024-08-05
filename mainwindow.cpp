@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->AddExistingButton, &QPushButton::clicked, this, &MainWindow::addExistingTag);
     connect(ui->RemoveButton, &QPushButton::clicked, this, &MainWindow::removeTag);
     connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
+    connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
+    connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
+    connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
 }
 
 void MainWindow::openFolder() {
@@ -44,6 +47,14 @@ void MainWindow::openFolder() {
     }
 }
 
+void MainWindow::addFolder() {
+    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Open Directory"), ".", QFileDialog::ShowDirsOnly);
+    std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
+    for(auto& file : newFiles) {
+        ui->FileList->addItem(QString::fromStdString(file));
+    }
+}
+
 void MainWindow::openIni() {
     QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
@@ -53,6 +64,24 @@ void MainWindow::openIni() {
     ui->FileList->clear();
     fileStruct.openData(fileName.toStdString());
     qDebug() << "Opening ini: " << fileName;
+    std::vector<std::string> files = fileStruct.getFiles();
+    for(auto& file : files) {
+        if(file == "Tags") {
+            continue;
+        }
+        ui->FileList->addItem(QString::fromStdString(file));
+    }
+}
+
+void MainWindow::addNewIni() {
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), ".", "Inifiles (*.ini)");
+    if(fileName.isEmpty()) {
+        return;
+    }
+    ui->TagList->clear();
+    ui->FileList->clear();
+    fileStruct.addData(fileName.toStdString());
+    qDebug() << "Adding ini: " << fileName;
     std::vector<std::string> files = fileStruct.getFiles();
     for(auto& file : files) {
         if(file == "Tags") {
@@ -84,6 +113,7 @@ void MainWindow::addExistingTag() {
         msgBox.exec();
         return;
     }
+    fileStruct.removeUnusedTags();
     QStringList QTags;
     std::vector<std::string> tags = fileStruct.getAllTags();
     for(auto& tag : tags) {
@@ -180,9 +210,16 @@ void MainWindow::showGroupDialog() {
     groupUi->exec();
 }
 
-void MainWindow::groupFiles(std::vector<std::string> tags) {
+void MainWindow::groupFiles(const std::vector<std::string>& tags) {
     if(!tags.empty()) {
         fileStruct.groupFiles(tags);
+    }
+}
+
+void MainWindow::saveGroup() {
+    QString path = QFileDialog::getExistingDirectory(this, tr("Save Directory"), ".", QFileDialog::ShowDirsOnly);
+    if(!path.isEmpty()) {
+        fileStruct.saveToFolder(path.toStdString());
     }
 }
 

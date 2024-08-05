@@ -27,7 +27,7 @@ private slots:
     void removeTagFromList();
     void sendTagList();
 signals:
-    void dialogRes(std::vector<std::string> tags);
+    void dialogRes(const std::vector<std::string>& tags);
 };
 
 #endif // GROUPDIALOG_H

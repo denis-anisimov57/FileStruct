@@ -6,11 +6,10 @@
 #include <QDateTime>
 #include <fstream>
 
-FileStruct::FileStruct(std::string pathToIni): data(pathToIni) {}
-
-void FileStruct::openNewFolder(std::string path) {
+void FileStruct::openNewFolder(const std::string& path) {
     data.clear();
     QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
+    qDebug() << "Reading files from directory\n";
     for(; it.hasNext(); it.next()) {
         if(!it.filePath().isEmpty()) {
             qDebug() << it.filePath() << " " << it.fileInfo().lastModified().toString();
@@ -19,8 +18,29 @@ void FileStruct::openNewFolder(std::string path) {
     }
 }
 
-void FileStruct::openData(std::string pathToIni) {
+std::vector<std::string> FileStruct::addFolder(const std::string& path) {
+    std::vector<std::string> newFiles;
+    if(path.empty()) {
+        return newFiles;
+    }
+    qDebug() << "Adding new files\n";
+    QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
+    for(; it.hasNext(); it.next()) {
+        if(!it.filePath().isEmpty() && !data.isSectionExist(it.filePath().toStdString())) {
+            qDebug() << it.filePath() << " " << it.fileInfo().lastModified().toString();
+            data.writeBool(it.filePath().toStdString(), "IsExist", true);
+            newFiles.push_back(it.filePath().toStdString());
+        }
+    }
+    return newFiles;
+}
+
+void FileStruct::openData(const std::string& pathToIni) {
     data.open(pathToIni);
+}
+
+void FileStruct::addData(const std::string& pathToIni) {
+    data.addNew(pathToIni);
 }
 
 std::vector<std::string> FileStruct::getFiles() {
@@ -32,7 +52,7 @@ std::vector<std::string> FileStruct::getFiles() {
     return files;
 }
 
-std::vector<std::string> FileStruct::getTags(std::string fileName) {
+std::vector<std::string> FileStruct::getTags(const std::string& fileName) {
     std::vector<std::string> tags;
     std::map<std::string, std::string> tagsMap = data.getSections().at(fileName);
     for(auto& tag : tagsMap) {
@@ -56,14 +76,14 @@ std::vector<std::string> FileStruct::getAllTags() {
     return tags;
 }
 
-void FileStruct::addTag(std::string filePath, std::string tag) {
+void FileStruct::addTag(const std::string& filePath, const std::string& tag) {
     if(data.isSectionExist(filePath)) {
         data.writeBool("Tags", tag, true);
         data.writeBool(filePath, tag, true);
     }
 }
 
-void FileStruct::addTag(std::vector<std::string> filePaths, std::string tag) {
+void FileStruct::addTag(const std::vector<std::string>& filePaths, const std::string& tag) {
     for(auto& filePath : filePaths) {
         if(data.isSectionExist(filePath)) {
             data.writeBool("Tags", tag, true);
@@ -72,11 +92,11 @@ void FileStruct::addTag(std::vector<std::string> filePaths, std::string tag) {
     }
 }
 
-void FileStruct::removeTag(std::string filePath, std::string tag) {
+void FileStruct::removeTag(const std::string& filePath, const std::string& tag) {
     data.deleteKey(filePath, tag);
 }
 
-void FileStruct::removeTag(std::vector<std::string> filePaths, std::string tag) {
+void FileStruct::removeTag(const std::vector<std::string>& filePaths, const std::string& tag) {
     for(auto& filePath : filePaths) {
         data.deleteKey(filePath, tag);
     }
@@ -88,6 +108,9 @@ void FileStruct::removeUnusedTags() {
     for(auto& tag : tags) {
         bool isExist = false;
         for(auto& section : sections) {
+            if(section.first == "Tags") {
+                break;
+            }
             isExist = data.isKeysExist(section.first, tag.first);
             if(isExist) {
                 break;
@@ -99,7 +122,7 @@ void FileStruct::removeUnusedTags() {
     }
 }
 
-void FileStruct::groupFiles(std::string tag) {
+void FileStruct::groupFiles(const std::string& tag) {
     QDir* combinedFiles = new QDir(".");
     combinedFiles->mkdir("relatedFiles");
     combinedFiles->cd("relatedFiles");
@@ -123,17 +146,17 @@ void FileStruct::groupFiles(std::string tag) {
     }
 }
 
-void FileStruct::groupFiles(std::vector<std::string> tags) {
-    QDir* combinedFiles = new QDir(".");
-    combinedFiles->mkdir("relatedFiles");
-    combinedFiles->cd("relatedFiles");
-    combinedFiles->setFilter(QDir::Files);
+void FileStruct::groupFiles(const std::vector<std::string>& tags) {
+    QDir* groupedFiles = new QDir(".");
+    groupedFiles->mkdir("relatedFiles");
+    groupedFiles->cd("relatedFiles");
+    groupedFiles->setFilter(QDir::Files);
     qDebug() << "Deleting previous group: \n";
-    for(auto& dirFile : combinedFiles->entryList()) {
-        combinedFiles->remove(dirFile);
+    for(auto& dirFile : groupedFiles->entryList()) {
+        groupedFiles->remove(dirFile);
         qDebug() << dirFile;
     }
-    delete combinedFiles;
+    delete groupedFiles;
     SectionsMap files = data.getSections();
     qDebug() << "Copying files: \n";
     for(auto& filePath : files) {
@@ -156,8 +179,21 @@ void FileStruct::groupFiles(std::vector<std::string> tags) {
     }
 }
 
-void FileStruct::saveChanges(std::string pathToIni) {
+void FileStruct::saveChanges(const std::string& pathToIni) {
     data.saveToFile(pathToIni);
+}
+
+void FileStruct::saveToFolder(const std::string& path) {
+    QDir* groupedFiles = new QDir("relatedFiles");
+    groupedFiles->setFilter(QDir::Files);
+    qDebug() << "Copying files to custom folder: \n";
+    for(auto& filePath : groupedFiles->entryList()) {
+        QFileInfo file(filePath);
+        QString old_name = "relatedFiles/" + filePath;
+        QString new_name = QString::fromStdString(path) + "/" + file.fileName();
+        bool ok = QFile::copy(old_name, new_name);
+        qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+    }
 }
 
 FileStruct::~FileStruct() {}

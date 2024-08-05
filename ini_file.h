@@ -22,10 +22,11 @@ class IniFile
         ~IniFile();
 
         void open(const std::string& path);
+        void addNew(const std::string& path);
         /// Запись кешированной конфигурации в файл
         void save();
 
-        void saveToFile(std::string path);
+        void saveToFile(const std::string& path);
 
         /// Чтение значения типа int
         /// @param section Секция ini-файла 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>799</width>
+    <width>878</width>
     <height>593</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,10,4">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
         <item>
          <widget class="QPushButton" name="OpenFolderButton">
           <property name="text">
@@ -27,9 +27,23 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="UpdateButton">
+          <property name="text">
+           <string>AddFolder</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="OpenIniButton">
           <property name="text">
            <string>OpenIni</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="AddIniButton">
+          <property name="text">
+           <string>AddIni</string>
           </property>
          </widget>
         </item>
@@ -44,6 +58,13 @@
          <widget class="QPushButton" name="GroupButton">
           <property name="text">
            <string>Group files</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="SaveGroupButton">
+          <property name="text">
+           <string>SaveGroup</string>
           </property>
          </widget>
         </item>
@@ -105,7 +126,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>799</width>
+     <width>878</width>
      <height>20</height>
     </rect>
    </property>

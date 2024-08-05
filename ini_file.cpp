@@ -64,60 +64,17 @@ std::pair<std::string, std::string> parseKey(std::string str)
 
 IniFile::IniFile(const std::string& path)
 {
-    std::ifstream file = std::ifstream(path);
-    if (!file.is_open())
-    {
-        return;
-    }
-
-    std::string lastSection = "";
-    while (file)
-    {
-        std::string line;
-        getline(file, line, '\n');
-        line = line.substr(0, line.find(';'));
-        strip(line);
-        if (line == "")
-        {
-            continue;
-        }
-        if (line[0] == '[' && line[line.size() - 1] == ']')
-        {
-            std::string secName = parseSection(line);
-            if (secName == "")
-            {
-                continue;
-            }
-            data[secName];
-            lastSection = secName;
-
-        }
-        else if (line.find('=') != std::string::npos)
-        {
-
-            if(lastSection != "")
-            {
-                auto key = parseKey(line);
-                if (key == std::pair<std::string, std::string>())
-                {
-                    continue;
-                }
-
-                if(data[lastSection].find(key.first) != data[lastSection].end())
-                {
-                    data[lastSection].erase(key.first);
-                }
-
-                data[lastSection].insert(parseKey(line));
-            }
-        }
-    }       
+    addNew(path);
 }
 
 IniFile::~IniFile() {}
 
 void IniFile::open(const std::string &path) {
     clear();
+    addNew(path);
+}
+
+void IniFile::addNew(const std::string& path) {
     std::ifstream file = std::ifstream(path);
     if (!file.is_open())
     {
@@ -168,7 +125,7 @@ void IniFile::open(const std::string &path) {
     }
 }
 
-void IniFile::saveToFile(std::string path) {
+void IniFile::saveToFile(const std::string& path) {
     std::ofstream file = std::ofstream(path);
     if (!file.is_open())
     {
