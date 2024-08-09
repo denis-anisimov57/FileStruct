@@ -20,70 +20,70 @@
       <item>
        <widget class="QPushButton" name="OpenFolderButton">
         <property name="text">
-         <string>OpenFolder</string>
+         <string>Открыть папку</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="UpdateButton">
         <property name="text">
-         <string>AddFolder</string>
+         <string>Добавить папку</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="OpenIniButton">
         <property name="text">
-         <string>OpenIni</string>
+         <string>Открыть метки</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="AddIniButton">
         <property name="text">
-         <string>AddIni</string>
+         <string>Добавить метки</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="SaveIniButton">
         <property name="text">
-         <string>SaveIni</string>
+         <string>Сохранить метки</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="GroupButton">
         <property name="text">
-         <string>Group files</string>
+         <string>Сгруппировать</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="SaveGroupButton">
         <property name="text">
-         <string>SaveGroup</string>
+         <string>Сохранить группу</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="AddExistingButton">
         <property name="text">
-         <string>AddExistingTag</string>
+         <string>Добавить сущ. метку</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="AddButton">
         <property name="text">
-         <string>AddTag</string>
+         <string>Добавить метку</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="RemoveButton">
         <property name="text">
-         <string>RemoveTag</string>
+         <string>Удалить метку</string>
         </property>
        </widget>
       </item>
@@ -154,21 +154,21 @@
           <item>
            <widget class="QRadioButton" name="AllButton">
             <property name="text">
-             <string>ShowAll</string>
+             <string>Показать все</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="TaggedButton">
             <property name="text">
-             <string>ShowTagged</string>
+             <string>Показать отмеченные</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="UntaggedButton">
             <property name="text">
-             <string>ShowUntagged</string>
+             <string>Показать неотмеченные</string>
             </property>
            </widget>
           </item>
