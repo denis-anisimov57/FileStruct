@@ -51,13 +51,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
     connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
     connect(ui->AllButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
+    connect(ui->FilteredButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->TaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->UntaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->RotateRightButton, &QPushButton::clicked, this, &MainWindow::rotateRight);
     connect(ui->RotateLeftButton, &QPushButton::clicked, this, &MainWindow::rotateLeft);
     connect(ui->FileList, &QWidget::customContextMenuRequested, this, &MainWindow::showFilesContextMenu);
     connect(ui->TagList, &QWidget::customContextMenuRequested, this, &MainWindow::showTagsContextMenu);
-
 }
 
 ImageView::ImageView(QWidget* parent): QGraphicsView(parent) {}
@@ -225,6 +225,9 @@ void MainWindow::updateFileList() {
     else if(ui->TaggedButton->isChecked()) {
         files = fileStruct.getTagged();
     }
+    else if(ui->FilteredButton->isChecked()) {
+        files = fileStruct.getFiltered();
+    }
     else {
         files = fileStruct.getFiles();
     }
@@ -235,7 +238,7 @@ void MainWindow::updateFileList() {
 }
 
 void MainWindow::saveIni() {
-    if(!ui->FileList->count()) {
+    if(fileStruct.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText("Нечего сохранять");
         msgBox.exec();
@@ -250,7 +253,7 @@ void MainWindow::saveIni() {
 }
 
 void MainWindow::showGroupDialog() {
-    if(!ui->FileList->count()) {
+    if(fileStruct.isEmpty()) {
         QMessageBox msgBox;
         msgBox.setText("Нечего фильтровать");
         msgBox.exec();
@@ -266,9 +269,12 @@ void MainWindow::showGroupDialog() {
 }
 
 void MainWindow::groupFiles(const std::vector<std::string>& tags) {
-    if(!tags.empty()) {
-        fileStruct.groupFiles(tags);
+    qFilteredFiles.clear();
+    std::vector<std::string> filteredFiles = fileStruct.groupFiles(tags);
+    for(auto& file : filteredFiles) {
+        qFilteredFiles.push_back(QString::fromStdString(file));
     }
+    updateFileList();
 }
 
 void MainWindow::saveGroup() {

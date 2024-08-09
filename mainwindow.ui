@@ -55,14 +55,14 @@
       <item>
        <widget class="QPushButton" name="GroupButton">
         <property name="text">
-         <string>Сгруппировать</string>
+         <string>Фильтровать по меткам</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="SaveGroupButton">
         <property name="text">
-         <string>Сохранить группу</string>
+         <string>Сохранить отфильтрованные</string>
         </property>
        </widget>
       </item>
@@ -134,6 +134,13 @@
            <widget class="QRadioButton" name="AllButton">
             <property name="text">
              <string>Показать все</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="FilteredButton">
+            <property name="text">
+             <string>Отфильтрованные</string>
             </property>
            </widget>
           </item>

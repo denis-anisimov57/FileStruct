@@ -21,6 +21,7 @@ public:
 
 private:
     FileStruct fileStruct;
+    QStringList qFilteredFiles;
     QAction* addTagAct;
     QAction* addExistingTagAct;
     QAction* removeTagAct;

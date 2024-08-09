@@ -6,46 +6,47 @@
 class FileStruct {
     public:
         //! Конструктор по умолчанию
-        FileStruct() = default;//
+        FileStruct() = default;
 
-        void openNewFolder(const std::string& path);//
+        void openNewFolder(const std::string& path);
 
-        void openData(const std::string& pathToIni);//
+        void openData(const std::string& pathToIni);
 
         void addData(const std::string& pathToIni);
 
-        std::vector<std::string> addFolder(const std::string& path);//
+        std::vector<std::string> addFolder(const std::string& path);
 
-        std::vector<std::string> getFiles();//
+        std::vector<std::string> getFiles();
 
-        std::vector<std::string> getTags(const std::string& fileName);//
+        std::vector<std::string> getTags(const std::string& fileName);
 
-        std::vector<std::string> getAllTags();//
+        std::vector<std::string> getAllTags();
 
         std::vector<std::string> getUntagged();
 
         std::vector<std::string> getTagged();
 
-        void addTag(const std::string& filePath, const std::string& tag);//
+        std::vector<std::string> getFiltered();
 
-        void addTag(const std::vector<std::string>& filePaths, const std::string& tag);//
+        bool isEmpty();
 
-        void removeTag(const std::string& filePath, const std::string& tag);//
+        void addTag(const std::string& filePath, const std::string& tag);
 
-        void removeTag(const std::vector<std::string>& filePaths, const std::string& tag);//
+        void removeTag(const std::string& filePath, const std::string& tag);
 
-        void removeUnusedTags(); //
+        void removeTag(const std::vector<std::string>& filePaths, const std::string& tag);
 
-        void groupFiles(const std::string& tag); //generates folder with this tag
+        void removeUnusedTags();
 
-        void groupFiles(const std::vector<std::string>& tags); //generates folder with this tags
+        std::vector<std::string> groupFiles(const std::vector<std::string>& tags); //saves filenames with this tags
 
         void saveToFolder(const std::string& path); // saves union from methods above to custom folder
 
         void saveChanges(const std::string& pathToIni); // saves changed tags in ini
 
-        ~FileStruct();//
+        ~FileStruct();
 
     private:
+        std::vector<std::string> filteredFiles;
         IniFile data;
 };

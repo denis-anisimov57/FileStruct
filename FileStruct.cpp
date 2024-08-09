@@ -109,19 +109,18 @@ std::vector<std::string> FileStruct::getTagged() {
     return taggedFiles;
 }
 
+std::vector<std::string> FileStruct::getFiltered() {
+    return filteredFiles;
+}
+
+bool FileStruct::isEmpty() {
+    return !data.getSectionsCount();
+}
+
 void FileStruct::addTag(const std::string& filePath, const std::string& tag) {
     if(data.isSectionExist(filePath)) {
         data.writeBool("Tags", tag, true);
         data.writeBool(filePath, tag, true);
-    }
-}
-
-void FileStruct::addTag(const std::vector<std::string>& filePaths, const std::string& tag) {
-    for(auto& filePath : filePaths) {
-        if(data.isSectionExist(filePath)) {
-            data.writeBool("Tags", tag, true);
-            data.writeBool(filePath, tag, true);
-        }
     }
 }
 
@@ -158,43 +157,9 @@ void FileStruct::removeUnusedTags() {
     }
 }
 
-void FileStruct::groupFiles(const std::string& tag) {
-    QDir* combinedFiles = new QDir(".");
-    combinedFiles->mkdir("relatedFiles");
-    combinedFiles->cd("relatedFiles");
-    combinedFiles->setFilter(QDir::Files);
-    qDebug() << "Deleting previous group: \n";
-    for(auto& dirFile : combinedFiles->entryList()) {
-        combinedFiles->remove(dirFile);
-        qDebug() << dirFile;
-    }
-    delete combinedFiles;
+std::vector<std::string> FileStruct::groupFiles(const std::vector<std::string>& tags) {
+    filteredFiles.clear();
     SectionsMap files = data.getSections();
-    qDebug() << "Copying files: \n";
-    for(auto& filePath : files) {
-        if(filePath.first != "Tags" && data.isKeysExist(filePath.first, tag)) {
-            QFileInfo file(QString::fromStdString(filePath.first));
-            QString old_name = QString::fromStdString(filePath.first);
-            QString new_name = "relatedFiles/" + file.fileName();
-            bool ok = QFile::copy(old_name, new_name);
-            qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
-        }
-    }
-}
-
-void FileStruct::groupFiles(const std::vector<std::string>& tags) {
-    QDir* groupedFiles = new QDir(".");
-    groupedFiles->mkdir("relatedFiles");
-    groupedFiles->cd("relatedFiles");
-    groupedFiles->setFilter(QDir::Files);
-    qDebug() << "Deleting previous group: \n";
-    for(auto& dirFile : groupedFiles->entryList()) {
-        groupedFiles->remove(dirFile);
-        qDebug() << dirFile;
-    }
-    delete groupedFiles;
-    SectionsMap files = data.getSections();
-    qDebug() << "Copying files: \n";
     for(auto& filePath : files) {
         bool containTags = true;
         if(filePath.first != "Tags") {
@@ -205,14 +170,11 @@ void FileStruct::groupFiles(const std::vector<std::string>& tags) {
                 }
             }
             if(containTags) {
-                QFileInfo file(QString::fromStdString(filePath.first));
-                QString old_name = QString::fromStdString(filePath.first);
-                QString new_name = "relatedFiles/" + file.fileName();
-                bool ok = QFile::copy(old_name, new_name);
-                qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+                filteredFiles.push_back(filePath.first);
             }
         }
     }
+    return filteredFiles;
 }
 
 void FileStruct::saveChanges(const std::string& pathToIni) {
@@ -220,12 +182,11 @@ void FileStruct::saveChanges(const std::string& pathToIni) {
 }
 
 void FileStruct::saveToFolder(const std::string& path) {
-    QDir* groupedFiles = new QDir("relatedFiles");
-    groupedFiles->setFilter(QDir::Files);
     qDebug() << "Copying files to custom folder: \n";
-    for(auto& filePath : groupedFiles->entryList()) {
-        QFileInfo file(filePath);
-        QString old_name = "relatedFiles/" + filePath;
+    for(auto& filePath : filteredFiles) {
+        QString qFilePath = QString::fromStdString(filePath);
+        QFileInfo file(qFilePath);
+        QString old_name = qFilePath;
         QString new_name = QString::fromStdString(path) + "/" + file.fileName();
         bool ok = QFile::copy(old_name, new_name);
         qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";

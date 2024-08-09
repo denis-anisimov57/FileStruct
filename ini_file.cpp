@@ -20,7 +20,7 @@ void strip(std::string& str)
 
 bool boolCheck(std::string str)
 {
-    for (int i = 0; i < str.size(); ++i) 
+    for (unsigned long long i = 0; i < str.size(); ++i)
     {
         str[i] = str[i] >= 'A' && str[i] <= 'Z' ? str[i] + 32 : str[i];
     } 
