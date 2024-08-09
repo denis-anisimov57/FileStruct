@@ -3,10 +3,9 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QInputDialog>
-#include <QScrollBar>
 #include <QMessageBox>
 #include <QVector>
-#include <QDialogButtonBox>
+#include <QWheelEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+    ui->AllButton->setChecked(true);
     connect(ui->OpenFolderButton, &QPushButton::clicked, this, &MainWindow::openFolder);
     connect(ui->AddButton, &QPushButton::clicked, this, &MainWindow::addTag);
     connect(ui->FileList, &QListWidget::currentRowChanged, this, &MainWindow::updateDisplay);
@@ -27,6 +29,34 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
     connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
     connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
+    connect(ui->AllButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
+    connect(ui->TaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
+    connect(ui->UntaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
+    connect(ui->RotateRightButton, &QPushButton::clicked, this, &MainWindow::rotateRight);
+    connect(ui->RotateLeftButton, &QPushButton::clicked, this, &MainWindow::rotateLeft);
+}
+
+ImageView::ImageView(QWidget* parent): QGraphicsView(parent) {}
+
+void ImageView::wheelEvent(QWheelEvent *event) {
+    const double scaleFactor = 1.15;
+    if(event->delta() > 0) {
+        scale(scaleFactor, scaleFactor);
+    }
+    else {
+        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+    qDebug() << event->key();
+    if(event->key() == Qt::ArrowType::RightArrow) {
+        qDebug() << "Right";
+        ui->FileList->setCurrentRow(ui->FileList->currentRow() + 1);
+    }
+    else if(event->key() == Qt::ArrowType::LeftArrow) {
+        qDebug() << "Left";
+    }
 }
 
 void MainWindow::openFolder() {
@@ -38,21 +68,13 @@ void MainWindow::openFolder() {
     ui->FileList->clear();
     fileStruct.openNewFolder(folderName.toStdString());
     qDebug() << "Opening folder: " << folderName;
-    std::vector<std::string> files = fileStruct.getFiles();
-    for(auto& file : files) {
-        if(file == "Tags") {
-            continue;
-        }
-        ui->FileList->addItem(QString::fromStdString(file));
-    }
+    updateFileList();
 }
 
 void MainWindow::addFolder() {
     QString folderName =  QFileDialog::getExistingDirectory(this, tr("Open Directory"), ".", QFileDialog::ShowDirsOnly);
     std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
-    for(auto& file : newFiles) {
-        ui->FileList->addItem(QString::fromStdString(file));
-    }
+    updateFileList();
 }
 
 void MainWindow::openIni() {
@@ -64,13 +86,7 @@ void MainWindow::openIni() {
     ui->FileList->clear();
     fileStruct.openData(fileName.toStdString());
     qDebug() << "Opening ini: " << fileName;
-    std::vector<std::string> files = fileStruct.getFiles();
-    for(auto& file : files) {
-        if(file == "Tags") {
-            continue;
-        }
-        ui->FileList->addItem(QString::fromStdString(file));
-    }
+    updateFileList();
 }
 
 void MainWindow::addNewIni() {
@@ -82,13 +98,7 @@ void MainWindow::addNewIni() {
     ui->FileList->clear();
     fileStruct.addData(fileName.toStdString());
     qDebug() << "Adding ini: " << fileName;
-    std::vector<std::string> files = fileStruct.getFiles();
-    for(auto& file : files) {
-        if(file == "Tags") {
-            continue;
-        }
-        ui->FileList->addItem(QString::fromStdString(file));
-    }
+    updateFileList();
 }
 
 void MainWindow::addTag() {
@@ -102,6 +112,9 @@ void MainWindow::addTag() {
     QString tag = QInputDialog::getText(this, tr("Add tag"), tr("Enter tag"), QLineEdit::Normal, "", &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
+        if(ui->UntaggedButton->isChecked()) {
+            ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
+        }
         updateDisplay();
     }
 }
@@ -123,6 +136,9 @@ void MainWindow::addExistingTag() {
     QString tag = QInputDialog::getItem(this, "Select tag to combine", "Tag: ", QTags, 0, false, &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
+        if(ui->UntaggedButton->isChecked()) {
+            ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
+        }
         updateDisplay();
     }
 }
@@ -150,6 +166,9 @@ void MainWindow::removeTag() {
     if(ok && !tag.isEmpty()) {
         fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
         updateDisplay();
+        if(ui->TaggedButton->isChecked() && !ui->TagList->count()) {
+            ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
+        }
     }
 }
 
@@ -167,16 +186,32 @@ void MainWindow::updateDisplay() {
     }
 
     QPixmap img(ui->FileList->currentItem()->text());
-    if (!ui->graphicsView->scene()) {
-        qDebug() << "Creating scene";
-        QGraphicsScene *scene = new QGraphicsScene(this);
-        ui->graphicsView->setScene(scene);
+    qDebug() << "Setting scene";
+    if (ui->graphicsView->scene()) {
+        delete ui->graphicsView->scene();
     }
-    ui->graphicsView->scene()->clear();
-    ui->graphicsView->scene()->setSceneRect(0, 0, 0, 0);
+    QGraphicsScene *scene = new QGraphicsScene(this);
+    ui->graphicsView->setScene(scene);
     ui->graphicsView->scene()->addPixmap(img);
     ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
     ui->graphicsView->centerOn(0, 0);
+}
+
+void MainWindow::updateFileList() {
+    std::vector<std::string> files;
+    if(ui->UntaggedButton->isChecked()) {
+        files = fileStruct.getUntagged();
+    }
+    else if(ui->TaggedButton->isChecked()) {
+        files = fileStruct.getTagged();
+    }
+    else {
+        files = fileStruct.getFiles();
+    }
+    ui->FileList->clear();
+    for(auto& file : files) {
+        ui->FileList->addItem(QString::fromStdString(file));
+    }
 }
 
 void MainWindow::saveIni() {
@@ -221,6 +256,22 @@ void MainWindow::saveGroup() {
     if(!path.isEmpty()) {
         fileStruct.saveToFolder(path.toStdString());
     }
+}
+
+void MainWindow::rotateRight() {
+    if(!ui->graphicsView->scene()) {
+        return;
+    }
+    ui->graphicsView->rotate(90);
+    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+}
+
+void MainWindow::rotateLeft() {
+    if(!ui->graphicsView->scene()) {
+        return;
+    }
+    ui->graphicsView->rotate(-90);
+    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 MainWindow::~MainWindow()

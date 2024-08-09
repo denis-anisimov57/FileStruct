@@ -3,7 +3,6 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QDebug>
-#include <QDateTime>
 #include <fstream>
 
 void FileStruct::openNewFolder(const std::string& path) {
@@ -12,7 +11,7 @@ void FileStruct::openNewFolder(const std::string& path) {
     qDebug() << "Reading files from directory\n";
     for(; it.hasNext(); it.next()) {
         if(!it.filePath().isEmpty()) {
-            qDebug() << it.filePath() << " " << it.fileInfo().lastModified().toString();
+            qDebug() << it.filePath();
             data.writeBool(it.filePath().toStdString(), "IsExist", true);
         }
     }
@@ -27,7 +26,7 @@ std::vector<std::string> FileStruct::addFolder(const std::string& path) {
     QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
     for(; it.hasNext(); it.next()) {
         if(!it.filePath().isEmpty() && !data.isSectionExist(it.filePath().toStdString())) {
-            qDebug() << it.filePath() << " " << it.fileInfo().lastModified().toString();
+            qDebug() << it.filePath();
             data.writeBool(it.filePath().toStdString(), "IsExist", true);
             newFiles.push_back(it.filePath().toStdString());
         }
@@ -47,6 +46,9 @@ std::vector<std::string> FileStruct::getFiles() {
     std::vector<std::string> files;
     SectionsMap sections = data.getSections();
     for(auto& file : sections) {
+        if(file.first == "Tags") {
+            continue;
+        }
         files.push_back(file.first);
     }
     return files;
@@ -74,6 +76,34 @@ std::vector<std::string> FileStruct::getAllTags() {
         tags.push_back(tag.first);
     }
     return tags;
+}
+
+std::vector<std::string> FileStruct::getUntagged() {
+    std::vector<std::string> untaggedFiles;
+    SectionsMap files = data.getSections();
+    for(auto& file : files) {
+        if(file.first == "Tags") {
+            continue;
+        }
+        if(data.getKeysCount(file.first) == 1) {
+            untaggedFiles.push_back(file.first);
+        }
+    }
+    return untaggedFiles;
+}
+
+std::vector<std::string> FileStruct::getTagged() {
+    std::vector<std::string> taggedFiles;
+    SectionsMap files = data.getSections();
+    for(auto& file : files) {
+        if(file.first == "Tags") {
+            continue;
+        }
+        if(data.getKeysCount(file.first) > 1) {
+            taggedFiles.push_back(file.first);
+        }
+    }
+    return taggedFiles;
 }
 
 void FileStruct::addTag(const std::string& filePath, const std::string& tag) {

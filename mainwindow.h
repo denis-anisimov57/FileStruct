@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsView>
+#include <QAction>
 #include "FileStruct.h"
 #include "groupdialog.h"
 
@@ -15,6 +17,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
+    virtual void keyPressEvent(QKeyEvent* event) override;
+
     ~MainWindow();
 
 private:
@@ -30,9 +35,20 @@ private slots:
     void addExistingTag();
     void removeTag();
     void updateDisplay();
+    void updateFileList();
     void saveIni();
     void groupFiles(const std::vector<std::string>& tags);
     void saveGroup();
     void showGroupDialog();
+    void rotateRight();
+    void rotateLeft();
 };
+
+class ImageView: public QGraphicsView {
+    Q_OBJECT
+public:
+    ImageView(QWidget* parent);
+    virtual void wheelEvent(QWheelEvent* event) override;
+};
+
 #endif // MAINWINDOW_H

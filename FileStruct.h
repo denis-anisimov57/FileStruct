@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <QString>
 #include "ini_file.h"
 
 class FileStruct {
@@ -22,6 +21,10 @@ class FileStruct {
         std::vector<std::string> getTags(const std::string& fileName);//
 
         std::vector<std::string> getAllTags();//
+
+        std::vector<std::string> getUntagged();
+
+        std::vector<std::string> getTagged();
 
         void addTag(const std::string& filePath, const std::string& tag);//
 

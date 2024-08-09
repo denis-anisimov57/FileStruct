@@ -14,85 +14,85 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,10,5">
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="1,10,4">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
-        <item>
-         <widget class="QPushButton" name="OpenFolderButton">
-          <property name="text">
-           <string>OpenFolder</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="UpdateButton">
-          <property name="text">
-           <string>AddFolder</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="OpenIniButton">
-          <property name="text">
-           <string>OpenIni</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="AddIniButton">
-          <property name="text">
-           <string>AddIni</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="SaveIniButton">
-          <property name="text">
-           <string>SaveIni</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="GroupButton">
-          <property name="text">
-           <string>Group files</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="SaveGroupButton">
-          <property name="text">
-           <string>SaveGroup</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="AddExistingButton">
-          <property name="text">
-           <string>AddExistingTag</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="AddButton">
-          <property name="text">
-           <string>AddTag</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="RemoveButton">
-          <property name="text">
-           <string>RemoveTag</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QPushButton" name="OpenFolderButton">
+        <property name="text">
+         <string>OpenFolder</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QGraphicsView" name="graphicsView">
+       <widget class="QPushButton" name="UpdateButton">
+        <property name="text">
+         <string>AddFolder</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="OpenIniButton">
+        <property name="text">
+         <string>OpenIni</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="AddIniButton">
+        <property name="text">
+         <string>AddIni</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="SaveIniButton">
+        <property name="text">
+         <string>SaveIni</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GroupButton">
+        <property name="text">
+         <string>Group files</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="SaveGroupButton">
+        <property name="text">
+         <string>SaveGroup</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="AddExistingButton">
+        <property name="text">
+         <string>AddExistingTag</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="AddButton">
+        <property name="text">
+         <string>AddTag</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="RemoveButton">
+        <property name="text">
+         <string>RemoveTag</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="ImageView" name="graphicsView">
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
@@ -105,17 +105,82 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="sizeConstraint">
-         <enum>QLayout::SetMaximumSize</enum>
+         <enum>QLayout::SetDefaultConstraint</enum>
         </property>
+        <item>
+         <widget class="QPushButton" name="RotateRightButton">
+          <property name="minimumSize">
+           <size>
+            <width>10</width>
+            <height>10</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>+90</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="RotateLeftButton">
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>-90</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QRadioButton" name="AllButton">
+            <property name="text">
+             <string>ShowAll</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="TaggedButton">
+            <property name="text">
+             <string>ShowTagged</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="UntaggedButton">
+            <property name="text">
+             <string>ShowUntagged</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <widget class="QListWidget" name="FileList"/>
         </item>
-        <item>
-         <widget class="QListWidget" name="TagList"/>
-        </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="TagList"/>
       </item>
      </layout>
     </item>
@@ -133,6 +198,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImageView</class>
+   <extends>QGraphicsView</extends>
+   <header>mainwindow.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
