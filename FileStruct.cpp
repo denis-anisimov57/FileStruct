@@ -68,6 +68,9 @@ std::vector<std::string> FileStruct::getTags(const std::string& fileName) {
 
 std::vector<std::string> FileStruct::getAllTags() {
     std::vector<std::string> tags;
+    if(!data.isSectionExist("Tags")) {
+        return tags;
+    }
     std::map<std::string, std::string> tagsMap = data.getSections().at("Tags");
     for(auto& tag : tagsMap) {
         if(tag.first == "IsExist") {
@@ -133,6 +136,9 @@ void FileStruct::removeTag(const std::vector<std::string>& filePaths, const std:
 }
 
 void FileStruct::removeUnusedTags() {
+    if(!data.isSectionExist("Tags")) {
+        return;
+    }
     std::map<std::string, std::string> tags = data.getSections().at("Tags");
     SectionsMap sections = data.getSections();
     for(auto& tag : tags) {

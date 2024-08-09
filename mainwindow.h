@@ -17,13 +17,15 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-
-    virtual void keyPressEvent(QKeyEvent* event) override;
-
     ~MainWindow();
 
 private:
     FileStruct fileStruct;
+    QAction* addTagAct;
+    QAction* addExistingTagAct;
+    QAction* removeTagAct;
+    QMenu* filesContextMenu;
+    QMenu* tagsContextMenu;
     GroupDialog* groupUi;
     Ui::MainWindow *ui;
 private slots:
@@ -42,6 +44,8 @@ private slots:
     void showGroupDialog();
     void rotateRight();
     void rotateLeft();
+    void showFilesContextMenu(QPoint);
+    void showTagsContextMenu(QPoint);
 };
 
 class ImageView: public QGraphicsView {

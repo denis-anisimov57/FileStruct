@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>878</width>
+    <width>1007</width>
     <height>593</height>
    </rect>
   </property>
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,10,5">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
       <item>
        <widget class="QPushButton" name="OpenFolderButton">
         <property name="text">
@@ -63,27 +63,6 @@
        <widget class="QPushButton" name="SaveGroupButton">
         <property name="text">
          <string>Сохранить группу</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="AddExistingButton">
-        <property name="text">
-         <string>Добавить сущ. метку</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="AddButton">
-        <property name="text">
-         <string>Добавить метку</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="RemoveButton">
-        <property name="text">
-         <string>Удалить метку</string>
         </property>
        </widget>
       </item>
@@ -191,7 +170,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>878</width>
+     <width>1007</width>
      <height>20</height>
     </rect>
    </property>

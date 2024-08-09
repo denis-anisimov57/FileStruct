@@ -10,21 +10,42 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , fileStruct()
+    , addTagAct(new QAction("Добавить метку"))
+    , addExistingTagAct(new QAction("Добавить существующую метку"))
+    , removeTagAct(new QAction("Удалить метку"))
+    , filesContextMenu(new QMenu())
+    , tagsContextMenu(new QMenu())
     , groupUi(new GroupDialog)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+
     ui->AllButton->setChecked(true);
+
+    ui->FileList->setContextMenuPolicy(Qt::CustomContextMenu);
+    addTagAct->setShortcut(QKeySequence("Ctrl+E"));
+    addExistingTagAct->setShortcut(QKeySequence("Ctrl+Shift+E"));
+    filesContextMenu->addAction(addTagAct);
+    filesContextMenu->addAction(addExistingTagAct);
+    this->addAction(addTagAct);
+    this->addAction(addExistingTagAct);
+
+    ui->TagList->setContextMenuPolicy(Qt::CustomContextMenu);
+    removeTagAct->setShortcut(QKeySequence("Ctrl+D"));
+    tagsContextMenu->addAction(removeTagAct);
+    this->addAction(removeTagAct);
+
     connect(ui->OpenFolderButton, &QPushButton::clicked, this, &MainWindow::openFolder);
-    connect(ui->AddButton, &QPushButton::clicked, this, &MainWindow::addTag);
+    connect(addTagAct, &QAction::triggered, this, &MainWindow::addTag);
+    connect(addExistingTagAct, &QAction::triggered, this, &MainWindow::addExistingTag);
     connect(ui->FileList, &QListWidget::currentRowChanged, this, &MainWindow::updateDisplay);
     connect(ui->OpenIniButton, &QPushButton::clicked, this, &MainWindow::openIni);
     connect(ui->SaveIniButton, &QPushButton::clicked, this, &MainWindow::saveIni);
     connect(ui->GroupButton, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
-    connect(ui->AddExistingButton, &QPushButton::clicked, this, &MainWindow::addExistingTag);
-    connect(ui->RemoveButton, &QPushButton::clicked, this, &MainWindow::removeTag);
+    connect(removeTagAct, &QAction::triggered, this, &MainWindow::removeTag);
     connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
     connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
     connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
@@ -34,6 +55,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->UntaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->RotateRightButton, &QPushButton::clicked, this, &MainWindow::rotateRight);
     connect(ui->RotateLeftButton, &QPushButton::clicked, this, &MainWindow::rotateLeft);
+    connect(ui->FileList, &QWidget::customContextMenuRequested, this, &MainWindow::showFilesContextMenu);
+    connect(ui->TagList, &QWidget::customContextMenuRequested, this, &MainWindow::showTagsContextMenu);
+
 }
 
 ImageView::ImageView(QWidget* parent): QGraphicsView(parent) {}
@@ -48,19 +72,18 @@ void ImageView::wheelEvent(QWheelEvent *event) {
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event) {
-    qDebug() << event->key();
-    if(event->key() == Qt::ArrowType::RightArrow) {
-        qDebug() << "Right";
-        ui->FileList->setCurrentRow(ui->FileList->currentRow() + 1);
-    }
-    else if(event->key() == Qt::ArrowType::LeftArrow) {
-        qDebug() << "Left";
-    }
+void MainWindow::showFilesContextMenu(QPoint pos) {
+    QPoint globalPos = ui->FileList->viewport()->mapToGlobal(pos);
+    filesContextMenu->exec(globalPos);
+}
+
+void MainWindow::showTagsContextMenu(QPoint pos) {
+    QPoint globalPos = ui->TagList->viewport()->mapToGlobal(pos);
+    tagsContextMenu->exec(globalPos);
 }
 
 void MainWindow::openFolder() {
-    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Open Directory"), ".", QFileDialog::ShowDirsOnly);
+    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Открыть папку"), ".", QFileDialog::ShowDirsOnly);
     if(folderName.isEmpty()) {
         return;
     }
@@ -72,13 +95,13 @@ void MainWindow::openFolder() {
 }
 
 void MainWindow::addFolder() {
-    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Open Directory"), ".", QFileDialog::ShowDirsOnly);
+    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Добавить папку"), ".", QFileDialog::ShowDirsOnly);
     std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
     updateFileList();
 }
 
 void MainWindow::openIni() {
-    QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Открыть файл с метками"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -90,7 +113,7 @@ void MainWindow::openIni() {
 }
 
 void MainWindow::addNewIni() {
-    QString fileName =  QFileDialog::getOpenFileName(this, tr("Open Inifile"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Добавить файл с метками"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -105,11 +128,11 @@ void MainWindow::addTag() {
     bool ok;
     if(ui->FileList->selectedItems().empty()) {
         QMessageBox msgBox;
-        msgBox.setText("No file selected");
+        msgBox.setText("Не выбран файл");
         msgBox.exec();
         return;
     }
-    QString tag = QInputDialog::getText(this, tr("Add tag"), tr("Enter tag"), QLineEdit::Normal, "", &ok);
+    QString tag = QInputDialog::getText(this, tr("Добавить метку"), tr("Введите метку"), QLineEdit::Normal, "", &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
         if(ui->UntaggedButton->isChecked()) {
@@ -122,18 +145,18 @@ void MainWindow::addTag() {
 void MainWindow::addExistingTag() {
     if(ui->FileList->selectedItems().empty()) {
         QMessageBox msgBox;
-        msgBox.setText("No file selected");
+        msgBox.setText("Не выбран файл");
         msgBox.exec();
         return;
     }
     fileStruct.removeUnusedTags();
-    QStringList QTags;
     std::vector<std::string> tags = fileStruct.getAllTags();
+    QStringList QTags;
     for(auto& tag : tags) {
         QTags.push_back(QString::fromStdString(tag));
     }
     bool ok = false;
-    QString tag = QInputDialog::getItem(this, "Select tag to combine", "Tag: ", QTags, 0, false, &ok);
+    QString tag = QInputDialog::getItem(this, "Выберите метки для фильтрации", "Метка: ", QTags, 0, false, &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
         if(ui->UntaggedButton->isChecked()) {
@@ -146,13 +169,13 @@ void MainWindow::addExistingTag() {
 void MainWindow::removeTag() {
     if(ui->FileList->selectedItems().empty()) {
         QMessageBox msgBox;
-        msgBox.setText("No file selected");
+        msgBox.setText("Не выбран файл");
         msgBox.exec();
         return;
     }
-    if(!ui->TagList->count()) {
+    if(ui->TagList->selectedItems().empty()) {
         QMessageBox msgBox;
-        msgBox.setText("No tags");
+        msgBox.setText("Не выбрана метка");
         msgBox.exec();
         return;
     }
@@ -161,14 +184,11 @@ void MainWindow::removeTag() {
     for(auto& tag : tags) {
         QTags.push_back(QString::fromStdString(tag));
     }
-    bool ok = false;
-    QString tag = QInputDialog::getItem(this, "Select tag to remove", "Tag: ", QTags, 0, false, &ok);
-    if(ok && !tag.isEmpty()) {
-        fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
-        updateDisplay();
-        if(ui->TaggedButton->isChecked() && !ui->TagList->count()) {
-            ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
-        }
+    QString tag = ui->TagList->currentItem()->text();
+    fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
+    updateDisplay();
+    if(ui->TaggedButton->isChecked() && !ui->TagList->count()) {
+        ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
     }
 }
 
@@ -217,11 +237,11 @@ void MainWindow::updateFileList() {
 void MainWindow::saveIni() {
     if(!ui->FileList->count()) {
         QMessageBox msgBox;
-        msgBox.setText("Nothing to save");
+        msgBox.setText("Нечего сохранять");
         msgBox.exec();
         return;
     }
-    QString fileName =  QFileDialog::getSaveFileName(this, tr("Save Inifile"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getSaveFileName(this, tr("Сохранить файл с метками"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -232,7 +252,7 @@ void MainWindow::saveIni() {
 void MainWindow::showGroupDialog() {
     if(!ui->FileList->count()) {
         QMessageBox msgBox;
-        msgBox.setText("Nothing to group");
+        msgBox.setText("Нечего фильтровать");
         msgBox.exec();
         return;
     }
@@ -252,7 +272,7 @@ void MainWindow::groupFiles(const std::vector<std::string>& tags) {
 }
 
 void MainWindow::saveGroup() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Save Directory"), ".", QFileDialog::ShowDirsOnly);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Сохранить папку"), ".", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
         fileStruct.saveToFolder(path.toStdString());
     }
@@ -276,6 +296,11 @@ void MainWindow::rotateLeft() {
 
 MainWindow::~MainWindow()
 {
+    delete addTagAct;
+    delete addExistingTagAct;
+    delete removeTagAct;
+    delete filesContextMenu;
+    delete tagsContextMenu;
     delete groupUi;
     delete ui;
 }
