@@ -188,7 +188,7 @@
   <customwidget>
    <class>ImageView</class>
    <extends>QGraphicsView</extends>
-   <header>mainwindow.h</header>
+   <header>imageview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

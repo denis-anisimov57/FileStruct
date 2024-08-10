@@ -12,6 +12,8 @@ RC_ICONS = icon.ico
 SOURCES += \
     FileStruct.cpp \
     groupdialog.cpp \
+    imageview.cpp \
+    imageviewwindow.cpp \
     ini_file.cpp \
     main.cpp \
     mainwindow.cpp
@@ -19,11 +21,14 @@ SOURCES += \
 HEADERS += \
     FileStruct.h \
     groupdialog.h \
+    imageview.h \
+    imageviewwindow.h \
     ini_file.h \
     mainwindow.h \
 
 FORMS += \
     groupdialog.ui \
+    imageviewwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.

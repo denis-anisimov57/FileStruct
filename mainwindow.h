@@ -6,6 +6,8 @@
 #include <QAction>
 #include "FileStruct.h"
 #include "groupdialog.h"
+#include "imageview.h"
+#include "imageviewwindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,12 +23,12 @@ public:
 
 private:
     FileStruct fileStruct;
-    QStringList qFilteredFiles;
     QAction* addTagAct;
     QAction* addExistingTagAct;
     QAction* removeTagAct;
     QMenu* filesContextMenu;
     QMenu* tagsContextMenu;
+    ImageViewWindow* imageUi;
     GroupDialog* groupUi;
     Ui::MainWindow *ui;
 private slots:
@@ -47,13 +49,7 @@ private slots:
     void rotateLeft();
     void showFilesContextMenu(QPoint);
     void showTagsContextMenu(QPoint);
-};
-
-class ImageView: public QGraphicsView {
-    Q_OBJECT
-public:
-    ImageView(QWidget* parent);
-    virtual void wheelEvent(QWheelEvent* event) override;
+    void showImageViewWindow();
 };
 
 #endif // MAINWINDOW_H

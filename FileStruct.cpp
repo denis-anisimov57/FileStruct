@@ -157,7 +157,7 @@ void FileStruct::removeUnusedTags() {
     }
 }
 
-std::vector<std::string> FileStruct::groupFiles(const std::vector<std::string>& tags) {
+void FileStruct::groupFiles(const std::vector<std::string>& tags) {
     filteredFiles.clear();
     SectionsMap files = data.getSections();
     for(auto& filePath : files) {
@@ -174,7 +174,6 @@ std::vector<std::string> FileStruct::groupFiles(const std::vector<std::string>& 
             }
         }
     }
-    return filteredFiles;
 }
 
 void FileStruct::saveChanges(const std::string& pathToIni) {

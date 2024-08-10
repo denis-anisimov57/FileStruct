@@ -38,7 +38,7 @@ class FileStruct {
 
         void removeUnusedTags();
 
-        std::vector<std::string> groupFiles(const std::vector<std::string>& tags); //saves filenames with this tags
+        void groupFiles(const std::vector<std::string>& tags); //saves filenames with this tags
 
         void saveToFolder(const std::string& path); // saves union from methods above to custom folder
 

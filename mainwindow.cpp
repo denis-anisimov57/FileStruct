@@ -15,13 +15,11 @@ MainWindow::MainWindow(QWidget *parent)
     , removeTagAct(new QAction("Удалить метку"))
     , filesContextMenu(new QMenu())
     , tagsContextMenu(new QMenu())
+    , imageUi(new ImageViewWindow)
     , groupUi(new GroupDialog)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
     ui->AllButton->setChecked(true);
 
@@ -42,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(addTagAct, &QAction::triggered, this, &MainWindow::addTag);
     connect(addExistingTagAct, &QAction::triggered, this, &MainWindow::addExistingTag);
     connect(ui->FileList, &QListWidget::currentRowChanged, this, &MainWindow::updateDisplay);
+    connect(ui->FileList, &QListWidget::itemDoubleClicked, this, &MainWindow::showImageViewWindow);
     connect(ui->OpenIniButton, &QPushButton::clicked, this, &MainWindow::openIni);
     connect(ui->SaveIniButton, &QPushButton::clicked, this, &MainWindow::saveIni);
     connect(ui->GroupButton, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
@@ -60,16 +59,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->TagList, &QWidget::customContextMenuRequested, this, &MainWindow::showTagsContextMenu);
 }
 
-ImageView::ImageView(QWidget* parent): QGraphicsView(parent) {}
+void MainWindow::showImageViewWindow() {
+    QStringList files;
+    QList<QListWidgetItem*> items = ui->FileList->findItems(QString("*"), Qt::MatchWrap | Qt::MatchWildcard);
 
-void ImageView::wheelEvent(QWheelEvent *event) {
-    const double scaleFactor = 1.15;
-    if(event->delta() > 0) {
-        scale(scaleFactor, scaleFactor);
+    for(auto& item : items) {
+        files.push_back(item->text());
     }
-    else {
-        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
-    }
+    imageUi->setImageList(files, ui->FileList->currentRow());
+    imageUi->show();
 }
 
 void MainWindow::showFilesContextMenu(QPoint pos) {
@@ -204,17 +202,7 @@ void MainWindow::updateDisplay() {
         }
         ui->TagList->addItem(QString::fromStdString(tag));
     }
-
-    QPixmap img(ui->FileList->currentItem()->text());
-    qDebug() << "Setting scene";
-    if (ui->graphicsView->scene()) {
-        delete ui->graphicsView->scene();
-    }
-    QGraphicsScene *scene = new QGraphicsScene(this);
-    ui->graphicsView->setScene(scene);
-    ui->graphicsView->scene()->addPixmap(img);
-    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
-    ui->graphicsView->centerOn(0, 0);
+    ui->graphicsView->setImage(ui->FileList->currentItem()->text());
 }
 
 void MainWindow::updateFileList() {
@@ -269,11 +257,7 @@ void MainWindow::showGroupDialog() {
 }
 
 void MainWindow::groupFiles(const std::vector<std::string>& tags) {
-    qFilteredFiles.clear();
-    std::vector<std::string> filteredFiles = fileStruct.groupFiles(tags);
-    for(auto& file : filteredFiles) {
-        qFilteredFiles.push_back(QString::fromStdString(file));
-    }
+    fileStruct.groupFiles(tags);
     updateFileList();
 }
 
@@ -307,6 +291,7 @@ MainWindow::~MainWindow()
     delete removeTagAct;
     delete filesContextMenu;
     delete tagsContextMenu;
+    delete imageUi;
     delete groupUi;
     delete ui;
 }
