@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QVector>
 #include <QWheelEvent>
+#include <QDialogButtonBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,6 +23,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ui->AllButton->setChecked(true);
+
+    moveButtonName = ui->MoveGroupButton->objectName();
+    copyButtonName = ui->SaveGroupButton->objectName();
+
+    groupUi->setWindowTitle("Фильтрация по меткам");
+    imageUi->setWindowTitle("Просмотр файла");
+
+
+    ui->RotateRightButton->setText("");
+    ui->RotateLeftButton->setText("");
+    ui->RotateRightButton->setIcon(QIcon(":/icons/rotate-right.png"));
+    ui->RotateLeftButton->setIcon(QIcon(":/icons/rotate-left.png"));
 
     ui->FileList->setContextMenuPolicy(Qt::CustomContextMenu);
     addTagAct->setShortcut(QKeySequence("Ctrl+E"));
@@ -47,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(removeTagAct, &QAction::triggered, this, &MainWindow::removeTag);
     connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
     connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
+    connect(ui->MoveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
     connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
     connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
     connect(ui->AllButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
@@ -66,8 +80,9 @@ void MainWindow::showImageViewWindow() {
     for(auto& item : items) {
         files.push_back(item->text());
     }
-    imageUi->setImageList(files, ui->FileList->currentRow());
     imageUi->show();
+
+    imageUi->setImageList(files, ui->FileList->currentRow());
 }
 
 void MainWindow::showFilesContextMenu(QPoint pos) {
@@ -264,8 +279,14 @@ void MainWindow::groupFiles(const std::vector<std::string>& tags) {
 void MainWindow::saveGroup() {
     QString path = QFileDialog::getExistingDirectory(this, tr("Сохранить папку"), ".", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
-        fileStruct.saveToFolder(path.toStdString());
+        if(sender()->objectName() == moveButtonName) {
+            fileStruct.saveToFolder(path.toStdString(), true);
+        }
+        else if(sender()->objectName() == copyButtonName) {
+            fileStruct.saveToFolder(path.toStdString(), false);
+        }
     }
+    updateFileList();
 }
 
 void MainWindow::rotateRight() {

@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,10,5">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
       <item>
        <widget class="QPushButton" name="OpenFolderButton">
         <property name="text">
@@ -62,7 +62,14 @@
       <item>
        <widget class="QPushButton" name="SaveGroupButton">
         <property name="text">
-         <string>Сохранить отфильтрованные</string>
+         <string>Сохранить фильтрованные</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="MoveGroupButton">
+        <property name="text">
+         <string>Переместить фильтрованные</string>
         </property>
        </widget>
       </item>

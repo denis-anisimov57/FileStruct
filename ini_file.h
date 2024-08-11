@@ -53,6 +53,8 @@ class IniFile
         /// Запись значения типа bool 
         void writeBool(const std::string& section, const std::string& key, bool value);
 
+        void renameSection(const std::string& oldName, const std::string& newName);
+
         /// Проверка существования секции 
         bool isSectionExist(const std::string& section);
         /// Проверка существования ключа в секции 

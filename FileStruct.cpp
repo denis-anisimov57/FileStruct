@@ -180,15 +180,39 @@ void FileStruct::saveChanges(const std::string& pathToIni) {
     data.saveToFile(pathToIni);
 }
 
-void FileStruct::saveToFolder(const std::string& path) {
+void FileStruct::saveToFolder(const std::string& path, const bool isMoving) {
     qDebug() << "Copying files to custom folder: \n";
+    std::vector<std::string> newFilteredFiles;
     for(auto& filePath : filteredFiles) {
         QString qFilePath = QString::fromStdString(filePath);
         QFileInfo file(qFilePath);
         QString old_name = qFilePath;
         QString new_name = QString::fromStdString(path) + "/" + file.fileName();
-        bool ok = QFile::copy(old_name, new_name);
-        qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+        if(QFile::exists(new_name)) {
+            QFileInfo newFile(new_name);
+            int renameCount = 1;
+            while(QFile::exists(new_name =
+                                newFile.absolutePath() + "/" +
+                                newFile.baseName() +
+                                "(" + QString::number(renameCount) + ")." +
+                                newFile.suffix())) {
+                renameCount++;
+            }
+        }
+        bool ok;
+        if(isMoving) {
+            ok = QFile::rename(old_name, new_name);
+            data.renameSection(old_name.toStdString(), new_name.toStdString());
+            newFilteredFiles.push_back(new_name.toStdString());
+            qDebug() << old_name << " " << new_name << "\nMove - " << ok << "\n";
+        }
+        else {
+            ok = QFile::copy(old_name, new_name);
+            qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+        }
+    }
+    if(!newFilteredFiles.empty()) {
+        filteredFiles = std::move(newFilteredFiles);
     }
 }
 

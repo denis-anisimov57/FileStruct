@@ -23,6 +23,8 @@ public:
 
 private:
     FileStruct fileStruct;
+    QString moveButtonName;
+    QString copyButtonName;
     QAction* addTagAct;
     QAction* addExistingTagAct;
     QAction* removeTagAct;

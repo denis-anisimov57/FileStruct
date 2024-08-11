@@ -228,6 +228,19 @@ void IniFile::writeBool(const std::string& section, const std::string& key, bool
     data[section].insert({key, value ? "true" : "false"});
 }
 
+void IniFile::renameSection(const std::string &oldName, const std::string &newName) {
+    if(!isSectionExist(oldName)) {
+        return;
+    }
+    std::map<std::string, std::string> oldKeys = getSections().at(oldName);
+    for(auto& key : oldKeys) {
+        writeString(newName, key.first, key.second);
+    }
+    for(auto& key : oldKeys) {
+        deleteKey(oldName, key.first);
+    }
+}
+
 bool IniFile::isSectionExist(const std::string& section)
 {
     return data.find(section) != data.end();

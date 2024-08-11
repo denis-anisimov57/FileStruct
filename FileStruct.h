@@ -40,7 +40,7 @@ class FileStruct {
 
         void groupFiles(const std::vector<std::string>& tags); //saves filenames with this tags
 
-        void saveToFolder(const std::string& path); // saves union from methods above to custom folder
+        void saveToFolder(const std::string& path, const bool isMoving); // saves union from methods above to custom folder
 
         void saveChanges(const std::string& pathToIni); // saves changed tags in ini
 

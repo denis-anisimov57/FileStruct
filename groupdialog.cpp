@@ -6,6 +6,10 @@ GroupDialog::GroupDialog(QWidget *parent) :
     ui(new Ui::GroupDialog)
 {
     ui->setupUi(this);
+    QList<QAbstractButton*> buttons = ui->buttonBox->buttons();
+    buttons[0]->setText("Ок");
+    buttons[1]->setText("Отмена");
+
     connect(ui->TagAddButton, &QPushButton::clicked, this, &GroupDialog::addTagToList);
     connect(ui->TagRemoveButton, &QPushButton::clicked, this, &GroupDialog::removeTagFromList);
     connect(this, &QDialog::accepted, this, &GroupDialog::sendTagList);

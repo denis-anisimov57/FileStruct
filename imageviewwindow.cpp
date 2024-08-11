@@ -8,12 +8,21 @@ ImageViewWindow::ImageViewWindow(QWidget *parent) :
     ui(new Ui::ImageViewWindow)
 {
     ui->setupUi(this);
+
+    ui->RotateRightButton->setText("");
+    ui->RotateLeftButton->setText("");
+    ui->RotateRightButton->setIcon(QIcon(":/icons/rotate-right.png"));
+    ui->RotateLeftButton->setIcon(QIcon(":/icons/rotate-left.png"));
+
     goLeftAct->setShortcut(QKeySequence("Q"));
     goRightAct->setShortcut(QKeySequence("E"));
     this->addAction(goLeftAct);
     this->addAction(goRightAct);
+
     connect(goLeftAct, &QAction::triggered, this, &ImageViewWindow::goLeft);
     connect(goRightAct, &QAction::triggered, this, &ImageViewWindow::goRight);
+    connect(ui->RotateRightButton, &QPushButton::clicked, this, &ImageViewWindow::rotateRight);
+    connect(ui->RotateLeftButton, &QPushButton::clicked, this, &ImageViewWindow::rotateLeft);
 
 }
 
@@ -35,6 +44,22 @@ void ImageViewWindow::goRight() {
         currentImg++;
         ui->graphicsView->setImage(imageList[currentImg]);
     }
+}
+
+void ImageViewWindow::rotateRight() {
+    if(!ui->graphicsView->scene()) {
+        return;
+    }
+    ui->graphicsView->rotate(90);
+    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+}
+
+void ImageViewWindow::rotateLeft() {
+    if(!ui->graphicsView->scene()) {
+        return;
+    }
+    ui->graphicsView->rotate(-90);
+    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 ImageViewWindow::~ImageViewWindow()
