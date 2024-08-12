@@ -6,6 +6,7 @@
 #include <fstream>
 
 void FileStruct::openNewFolder(const std::string& path) {
+    /*"*.png", "*.jpg", "*.jpeg", "*.webp"*/
     data.clear();
     QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
     qDebug() << "Reading files from directory\n";

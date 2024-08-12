@@ -3,5 +3,6 @@
         <file>rotate-right.png</file>
         <file>rotate-left.png</file>
         <file>icon.ico</file>
+        <file>imgLoadError.png</file>
     </qresource>
 </RCC>

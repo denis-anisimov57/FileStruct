@@ -18,6 +18,9 @@ void ImageView::wheelEvent(QWheelEvent *event) {
 
 void ImageView::setImage(QString filePath) {
     QPixmap img(filePath);
+    if(img.isNull()) {
+        img.load(":/icons/imgLoadError.png");
+    }
     qDebug() << "Setting scene";
     if (this->scene()) {
         delete this->scene();
