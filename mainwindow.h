@@ -19,10 +19,14 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
+    virtual void closeEvent(QCloseEvent* event) override;
+
     ~MainWindow();
 
 private:
     FileStruct fileStruct;
+    bool isSaved = true;
     QString moveButtonName;
     QString copyButtonName;
     QAction* addTagAct;

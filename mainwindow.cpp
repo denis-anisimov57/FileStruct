@@ -73,6 +73,22 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->TagList, &QWidget::customContextMenuRequested, this, &MainWindow::showTagsContextMenu);
 }
 
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if(!isSaved) {
+        event->ignore();
+        QMessageBox msgBox(this);
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setWindowTitle("Подтверждение выхода");
+        msgBox.setText("Выйти без сохранения?");
+        msgBox.addButton(new QPushButton("Да", this), QMessageBox::AcceptRole);
+        msgBox.addButton(new QPushButton("Нет", this), QMessageBox::RejectRole);
+        int res = msgBox.exec();
+        if (res == QMessageBox::AcceptRole) {
+            event->accept();
+        }
+    }
+}
+
 void MainWindow::showImageViewWindow() {
     QStringList files;
     QList<QListWidgetItem*> items = ui->FileList->findItems(QString("*"), Qt::MatchWrap | Qt::MatchWildcard);
@@ -100,6 +116,7 @@ void MainWindow::openFolder() {
     if(folderName.isEmpty()) {
         return;
     }
+    isSaved = false;
     ui->TagList->clear();
     ui->FileList->clear();
     fileStruct.openNewFolder(folderName.toStdString());
@@ -109,6 +126,10 @@ void MainWindow::openFolder() {
 
 void MainWindow::addFolder() {
     QString folderName =  QFileDialog::getExistingDirectory(this, tr("Добавить папку"), ".", QFileDialog::ShowDirsOnly);
+    if(folderName.isEmpty()) {
+        return;
+    }
+    isSaved = false;
     std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
     updateFileList();
 }
@@ -130,6 +151,7 @@ void MainWindow::addNewIni() {
     if(fileName.isEmpty()) {
         return;
     }
+    isSaved = false;
     ui->TagList->clear();
     ui->FileList->clear();
     fileStruct.addData(fileName.toStdString());
@@ -151,6 +173,7 @@ void MainWindow::addTag() {
         if(ui->UntaggedButton->isChecked()) {
             ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
         }
+        isSaved = false;
         updateDisplay();
     }
 }
@@ -175,6 +198,7 @@ void MainWindow::addExistingTag() {
         if(ui->UntaggedButton->isChecked()) {
             ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
         }
+        isSaved = false;
         updateDisplay();
     }
 }
@@ -199,6 +223,7 @@ void MainWindow::removeTag() {
     }
     QString tag = ui->TagList->currentItem()->text();
     fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
+    isSaved = false;
     updateDisplay();
     if(ui->TaggedButton->isChecked() && !ui->TagList->count()) {
         ui->FileList->currentItem()->setBackgroundColor(QColor(0, 255, 255));
@@ -253,6 +278,7 @@ void MainWindow::saveIni() {
     }
     qDebug() << "Saved in: " << fileName;
     fileStruct.saveChanges(fileName.toStdString());
+    isSaved = true;
 }
 
 void MainWindow::showGroupDialog() {
