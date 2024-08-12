@@ -188,8 +188,81 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="OpenMenu">
+    <property name="title">
+     <string>Открыть</string>
+    </property>
+    <addaction name="OpenFolderAct"/>
+    <addaction name="OpenTagsAct"/>
+   </widget>
+   <widget class="QMenu" name="AddMenu">
+    <property name="title">
+     <string>Добавить</string>
+    </property>
+    <addaction name="AddFolderAct"/>
+    <addaction name="AddTagsAct"/>
+   </widget>
+   <widget class="QMenu" name="SaveMenu">
+    <property name="title">
+     <string>Сохранить</string>
+    </property>
+    <addaction name="SaveTagsAct"/>
+   </widget>
+   <widget class="QMenu" name="FilterMenu">
+    <property name="title">
+     <string>Фильтрация</string>
+    </property>
+    <addaction name="FilterFilesAct"/>
+    <addaction name="separator"/>
+    <addaction name="CopyFilteredAct"/>
+    <addaction name="MoveFilteredAct"/>
+   </widget>
+   <addaction name="OpenMenu"/>
+   <addaction name="AddMenu"/>
+   <addaction name="SaveMenu"/>
+   <addaction name="FilterMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="FilterFilesAct">
+   <property name="text">
+    <string>Фильтровать по меткам</string>
+   </property>
+  </action>
+  <action name="CopyFilteredAct">
+   <property name="text">
+    <string>Копировать отфильтрованные</string>
+   </property>
+  </action>
+  <action name="MoveFilteredAct">
+   <property name="text">
+    <string>Переместить отфильтрованные</string>
+   </property>
+  </action>
+  <action name="AddFolderAct">
+   <property name="text">
+    <string>Добавить папку</string>
+   </property>
+  </action>
+  <action name="AddTagsAct">
+   <property name="text">
+    <string>Добавить метки</string>
+   </property>
+  </action>
+  <action name="OpenFolderAct">
+   <property name="text">
+    <string>Открыть папку</string>
+   </property>
+  </action>
+  <action name="OpenTagsAct">
+   <property name="text">
+    <string>Открыть метки</string>
+   </property>
+  </action>
+  <action name="SaveTagsAct">
+   <property name="text">
+    <string>Сохранить метки</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

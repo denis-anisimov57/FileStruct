@@ -14,8 +14,8 @@ ImageViewWindow::ImageViewWindow(QWidget *parent) :
     ui->RotateRightButton->setIcon(QIcon(":/icons/rotate-right.png"));
     ui->RotateLeftButton->setIcon(QIcon(":/icons/rotate-left.png"));
 
-    goLeftAct->setShortcut(QKeySequence("Q"));
-    goRightAct->setShortcut(QKeySequence("E"));
+    goLeftAct->setShortcut(QKeySequence(Qt::Key_Left));
+    goRightAct->setShortcut(QKeySequence(Qt::Key_Right));
     this->addAction(goLeftAct);
     this->addAction(goRightAct);
 

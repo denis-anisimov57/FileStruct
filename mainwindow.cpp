@@ -30,6 +30,15 @@ MainWindow::MainWindow(QWidget *parent)
     groupUi->setWindowTitle("Фильтрация по меткам");
     imageUi->setWindowTitle("Просмотр файла");
 
+    // add shortcuts?
+    connect(ui->OpenFolderAct, &QAction::triggered, this, &MainWindow::openFolder);
+    connect(ui->OpenTagsAct, &QAction::triggered, this, &MainWindow::openIni);
+    connect(ui->AddFolderAct, &QAction::triggered, this, &MainWindow::addFolder);
+    connect(ui->AddTagsAct, &QAction::triggered, this, &MainWindow::addNewIni);
+    connect(ui->SaveTagsAct, &QAction::triggered, this, &MainWindow::saveIni);
+    connect(ui->FilterFilesAct, &QAction::triggered, this, &MainWindow::showGroupDialog);
+    connect(ui->CopyFilteredAct, &QAction::triggered, this, &MainWindow::copyGroup);
+    connect(ui->MoveFilteredAct, &QAction::triggered, this, &MainWindow::moveGroup);
 
     ui->RotateRightButton->setText("");
     ui->RotateLeftButton->setText("");
@@ -59,8 +68,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->GroupButton, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
     connect(removeTagAct, &QAction::triggered, this, &MainWindow::removeTag);
     connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
-    connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
-    connect(ui->MoveGroupButton, &QPushButton::clicked, this, &MainWindow::saveGroup);
+    connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::copyGroup);
+    connect(ui->MoveGroupButton, &QPushButton::clicked, this, &MainWindow::moveGroup);
     connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
     connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
     connect(ui->AllButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
@@ -302,17 +311,20 @@ void MainWindow::groupFiles(const std::vector<std::string>& tags) {
     updateFileList();
 }
 
-void MainWindow::saveGroup() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Сохранить папку"), ".", QFileDialog::ShowDirsOnly);
+void MainWindow::copyGroup() {
+    QString path = QFileDialog::getExistingDirectory(this, tr("Копировать в папку"), ".", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
-        if(sender()->objectName() == moveButtonName) {
-            fileStruct.saveToFolder(path.toStdString(), true);
-        }
-        else if(sender()->objectName() == copyButtonName) {
-            fileStruct.saveToFolder(path.toStdString(), false);
-        }
+        fileStruct.saveToFolder(path.toStdString(), false);
+        updateFileList();
     }
-    updateFileList();
+}
+
+void MainWindow::moveGroup() {
+    QString path = QFileDialog::getExistingDirectory(this, tr("Переместить в папку"), ".", QFileDialog::ShowDirsOnly);
+    if(!path.isEmpty()) {
+        fileStruct.saveToFolder(path.toStdString(), true);
+        updateFileList();
+    }
 }
 
 void MainWindow::rotateRight() {

@@ -49,7 +49,8 @@ private slots:
     void updateFileList();
     void saveIni();
     void groupFiles(const std::vector<std::string>& tags);
-    void saveGroup();
+    void copyGroup();
+    void moveGroup();
     void showGroupDialog();
     void rotateRight();
     void rotateLeft();
