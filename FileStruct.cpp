@@ -23,6 +23,7 @@ std::vector<std::string> FileStruct::addFolder(const std::string& path) {
     if(path.empty()) {
         return newFiles;
     }
+    //QString?
     qDebug() << "Adding new files\n";
     QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
     for(; it.hasNext(); it.next()) {
@@ -45,6 +46,7 @@ void FileStruct::addData(const std::string& pathToIni) {
 
 std::vector<std::string> FileStruct::getFiles() {
     std::vector<std::string> files;
+    //store this array in the class?
     SectionsMap sections = data.getSections();
     for(auto& file : sections) {
         if(file.first == "Tags") {
@@ -57,6 +59,7 @@ std::vector<std::string> FileStruct::getFiles() {
 
 std::vector<std::string> FileStruct::getTags(const std::string& fileName) {
     std::vector<std::string> tags;
+    // store array in the class?
     std::map<std::string, std::string> tagsMap = data.getSections().at(fileName);
     for(auto& tag : tagsMap) {
         if(tag.first == "IsExist") {
@@ -72,6 +75,7 @@ std::vector<std::string> FileStruct::getAllTags() {
     if(!data.isSectionExist("Tags")) {
         return tags;
     }
+    //store array in the class?
     std::map<std::string, std::string> tagsMap = data.getSections().at("Tags");
     for(auto& tag : tagsMap) {
         if(tag.first == "IsExist") {
@@ -83,6 +87,7 @@ std::vector<std::string> FileStruct::getAllTags() {
 }
 
 std::vector<std::string> FileStruct::getUntagged() {
+    //store array in the class?
     std::vector<std::string> untaggedFiles;
     SectionsMap files = data.getSections();
     for(auto& file : files) {
@@ -97,6 +102,7 @@ std::vector<std::string> FileStruct::getUntagged() {
 }
 
 std::vector<std::string> FileStruct::getTagged() {
+    //store array in the class?
     std::vector<std::string> taggedFiles;
     SectionsMap files = data.getSections();
     for(auto& file : files) {
@@ -139,8 +145,8 @@ void FileStruct::removeUnusedTags() {
     if(!data.isSectionExist("Tags")) {
         return;
     }
-    std::map<std::string, std::string> tags = data.getSections().at("Tags");
-    SectionsMap sections = data.getSections();
+    std::map<std::string, std::string> tags = data.getSections().at("Tags"); // getAllTags()?
+    SectionsMap sections = data.getSections(); //getAllFiles()?
     for(auto& tag : tags) {
         bool isExist = false;
         for(auto& section : sections) {

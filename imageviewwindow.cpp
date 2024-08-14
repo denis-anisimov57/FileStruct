@@ -46,6 +46,8 @@ void ImageViewWindow::goRight() {
     }
 }
 
+//make rotation in imageView?
+
 void ImageViewWindow::rotateRight() {
     if(!ui->graphicsView->scene()) {
         return;

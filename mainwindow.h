@@ -27,8 +27,6 @@ public:
 private:
     FileStruct fileStruct;
     bool isSaved = true;
-    QString moveButtonName;
-    QString copyButtonName;
     QAction* addTagAct;
     QAction* addExistingTagAct;
     QAction* removeTagAct;

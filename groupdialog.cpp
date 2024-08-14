@@ -33,6 +33,7 @@ void GroupDialog::removeTagFromList() {
 
 void GroupDialog::sendTagList() {
     int c = ui->TagsList->count();
+    //QString?
     std::vector<std::string> tags;
     for(int i = 0; i < c; i++) {
         tags.push_back(ui->TagsList->item(i)->text().toStdString());

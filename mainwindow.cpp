@@ -24,9 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->AllButton->setChecked(true);
 
-    moveButtonName = ui->MoveGroupButton->objectName();
-    copyButtonName = ui->SaveGroupButton->objectName();
-
     groupUi->setWindowTitle("Фильтрация по меткам");
     imageUi->setWindowTitle("Просмотр файла");
 
@@ -58,20 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
     tagsContextMenu->addAction(removeTagAct);
     this->addAction(removeTagAct);
 
-    connect(ui->OpenFolderButton, &QPushButton::clicked, this, &MainWindow::openFolder);
     connect(addTagAct, &QAction::triggered, this, &MainWindow::addTag);
     connect(addExistingTagAct, &QAction::triggered, this, &MainWindow::addExistingTag);
     connect(ui->FileList, &QListWidget::currentRowChanged, this, &MainWindow::updateDisplay);
     connect(ui->FileList, &QListWidget::itemDoubleClicked, this, &MainWindow::showImageViewWindow);
-    connect(ui->OpenIniButton, &QPushButton::clicked, this, &MainWindow::openIni);
-    connect(ui->SaveIniButton, &QPushButton::clicked, this, &MainWindow::saveIni);
-    connect(ui->GroupButton, &QPushButton::clicked, this, &MainWindow::showGroupDialog);
     connect(removeTagAct, &QAction::triggered, this, &MainWindow::removeTag);
     connect(groupUi, &GroupDialog::dialogRes, this, &MainWindow::groupFiles);
-    connect(ui->SaveGroupButton, &QPushButton::clicked, this, &MainWindow::copyGroup);
-    connect(ui->MoveGroupButton, &QPushButton::clicked, this, &MainWindow::moveGroup);
-    connect(ui->UpdateButton, &QPushButton::clicked, this, &MainWindow::addFolder);
-    connect(ui->AddIniButton, &QPushButton::clicked, this, &MainWindow::addNewIni);
     connect(ui->AllButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->FilteredButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->TaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
@@ -89,10 +78,14 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         msgBox.setIcon(QMessageBox::Question);
         msgBox.setWindowTitle("Подтверждение выхода");
         msgBox.setText("Выйти без сохранения?");
-        msgBox.addButton(new QPushButton("Да", this), QMessageBox::AcceptRole);
-        msgBox.addButton(new QPushButton("Нет", this), QMessageBox::RejectRole);
+        QPushButton* yesButton = new QPushButton("Да", this);
+        QPushButton* noButton = new QPushButton("Нет", this);
+        msgBox.addButton(yesButton, QMessageBox::AcceptRole);
+        msgBox.addButton(noButton, QMessageBox::RejectRole);
         int res = msgBox.exec();
         if (res == QMessageBox::AcceptRole) {
+            delete yesButton;
+            delete noButton;
             event->accept();
         }
     }
@@ -100,6 +93,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::showImageViewWindow() {
     QStringList files;
+    // store items in class?
     QList<QListWidgetItem*> items = ui->FileList->findItems(QString("*"), Qt::MatchWrap | Qt::MatchWildcard);
 
     for(auto& item : items) {
@@ -120,14 +114,15 @@ void MainWindow::showTagsContextMenu(QPoint pos) {
     tagsContextMenu->exec(globalPos);
 }
 
+// make openFolder and AddFolder in one method?
 void MainWindow::openFolder() {
     QString folderName =  QFileDialog::getExistingDirectory(this, tr("Открыть папку"), ".", QFileDialog::ShowDirsOnly);
     if(folderName.isEmpty()) {
         return;
     }
     isSaved = false;
-    ui->TagList->clear();
-    ui->FileList->clear();
+//    ui->TagList->clear();
+//    ui->FileList->clear();
     fileStruct.openNewFolder(folderName.toStdString());
     qDebug() << "Opening folder: " << folderName;
     updateFileList();
@@ -140,16 +135,18 @@ void MainWindow::addFolder() {
     }
     isSaved = false;
     std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
+    qDebug() << "Adding folder: " << folderName;
     updateFileList();
 }
 
+//make openIni and AddIni in one method or function?
 void MainWindow::openIni() {
     QString fileName =  QFileDialog::getOpenFileName(this, tr("Открыть файл с метками"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
-    ui->TagList->clear();
-    ui->FileList->clear();
+//    ui->TagList->clear();
+//    ui->FileList->clear();
     fileStruct.openData(fileName.toStdString());
     qDebug() << "Opening ini: " << fileName;
     updateFileList();
@@ -161,21 +158,19 @@ void MainWindow::addNewIni() {
         return;
     }
     isSaved = false;
-    ui->TagList->clear();
-    ui->FileList->clear();
+//    ui->TagList->clear();
+//    ui->FileList->clear();
     fileStruct.addData(fileName.toStdString());
     qDebug() << "Adding ini: " << fileName;
     updateFileList();
 }
 
 void MainWindow::addTag() {
-    bool ok;
     if(ui->FileList->selectedItems().empty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Не выбран файл");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Не выбран файл");
         return;
     }
+    bool ok = false;
     QString tag = QInputDialog::getText(this, tr("Добавить метку"), tr("Введите метку"), QLineEdit::Normal, "", &ok);
     if(ok && !tag.isEmpty()) {
         fileStruct.addTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
@@ -189,12 +184,11 @@ void MainWindow::addTag() {
 
 void MainWindow::addExistingTag() {
     if(ui->FileList->selectedItems().empty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Не выбран файл");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Не выбран файл");
         return;
     }
     fileStruct.removeUnusedTags();
+    // use QString instead of std::string?
     std::vector<std::string> tags = fileStruct.getAllTags();
     QStringList QTags;
     for(auto& tag : tags) {
@@ -214,17 +208,14 @@ void MainWindow::addExistingTag() {
 
 void MainWindow::removeTag() {
     if(ui->FileList->selectedItems().empty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Не выбран файл");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Не выбран файл");
         return;
     }
     if(ui->TagList->selectedItems().empty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Не выбрана метка");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Не выбрана метка");
         return;
     }
+    // use QString instead of std::string? QStringList?
     QStringList QTags;
     std::vector<std::string> tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
     for(auto& tag : tags) {
@@ -244,6 +235,7 @@ void MainWindow::updateDisplay() {
         return;
     }
     ui->TagList->clear();
+    // use QString instead of std::string?
     std::vector<std::string> tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
     for(auto& tag : tags) {
         if(tag == "IsExist") {
@@ -256,6 +248,7 @@ void MainWindow::updateDisplay() {
 
 void MainWindow::updateFileList() {
     std::vector<std::string> files;
+    // store all this arrays in the class?
     if(ui->UntaggedButton->isChecked()) {
         files = fileStruct.getUntagged();
     }
@@ -269,6 +262,7 @@ void MainWindow::updateFileList() {
         files = fileStruct.getFiles();
     }
     ui->FileList->clear();
+    ui->TagList->clear();
     for(auto& file : files) {
         ui->FileList->addItem(QString::fromStdString(file));
     }
@@ -276,9 +270,7 @@ void MainWindow::updateFileList() {
 
 void MainWindow::saveIni() {
     if(fileStruct.isEmpty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Нечего сохранять");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Нечего сохранять");
         return;
     }
     QString fileName =  QFileDialog::getSaveFileName(this, tr("Сохранить файл с метками"), ".", "Inifiles (*.ini)");
@@ -292,11 +284,10 @@ void MainWindow::saveIni() {
 
 void MainWindow::showGroupDialog() {
     if(fileStruct.isEmpty()) {
-        QMessageBox msgBox;
-        msgBox.setText("Нечего фильтровать");
-        msgBox.exec();
+        QMessageBox::information(this, "Сообщение", "Нечего фильтровать");
         return;
     }
+//     use QString?
     QStringList QTags;
     std::vector<std::string> tags = fileStruct.getAllTags();
     for(auto& tag : tags) {
@@ -311,6 +302,7 @@ void MainWindow::groupFiles(const std::vector<std::string>& tags) {
     updateFileList();
 }
 
+// make copy and move in one method?
 void MainWindow::copyGroup() {
     QString path = QFileDialog::getExistingDirectory(this, tr("Копировать в папку"), ".", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
@@ -327,6 +319,7 @@ void MainWindow::moveGroup() {
     }
 }
 
+// make left and right rotation in one method?
 void MainWindow::rotateRight() {
     if(!ui->graphicsView->scene()) {
         return;

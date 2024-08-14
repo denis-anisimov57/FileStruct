@@ -14,67 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,10,5">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
-      <item>
-       <widget class="QPushButton" name="OpenFolderButton">
-        <property name="text">
-         <string>Открыть папку</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="UpdateButton">
-        <property name="text">
-         <string>Добавить папку</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="OpenIniButton">
-        <property name="text">
-         <string>Открыть метки</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="AddIniButton">
-        <property name="text">
-         <string>Добавить метки</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="SaveIniButton">
-        <property name="text">
-         <string>Сохранить метки</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="GroupButton">
-        <property name="text">
-         <string>Фильтровать по меткам</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="SaveGroupButton">
-        <property name="text">
-         <string>Сохранить фильтрованные</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="MoveGroupButton">
-        <property name="text">
-         <string>Переместить фильтрованные</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
+   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,5">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
