@@ -18,22 +18,15 @@ void FileStruct::openNewFolder(const std::string& path) {
     }
 }
 
-std::vector<std::string> FileStruct::addFolder(const std::string& path) {
-    std::vector<std::string> newFiles;
-    if(path.empty()) {
-        return newFiles;
-    }
-    //QString?
+void FileStruct::addFolder(const std::string& path) {
     qDebug() << "Adding new files\n";
     QDirIterator it(QString::fromStdString(path), {"*"}, QDir::Files, QDirIterator::Subdirectories);
     for(; it.hasNext(); it.next()) {
         if(!it.filePath().isEmpty() && !data.isSectionExist(it.filePath().toStdString())) {
             qDebug() << it.filePath();
             data.writeBool(it.filePath().toStdString(), "IsExist", true);
-            newFiles.push_back(it.filePath().toStdString());
         }
     }
-    return newFiles;
 }
 
 void FileStruct::openData(const std::string& pathToIni) {
@@ -44,79 +37,74 @@ void FileStruct::addData(const std::string& pathToIni) {
     data.addNew(pathToIni);
 }
 
-std::vector<std::string> FileStruct::getFiles() {
-    std::vector<std::string> files;
-    //store this array in the class?
+QStringList FileStruct::getFiles() {
+    QStringList files;
     SectionsMap sections = data.getSections();
     for(auto& file : sections) {
         if(file.first == "Tags") {
             continue;
         }
-        files.push_back(file.first);
+        files.push_back(QString::fromStdString(file.first));
     }
     return files;
 }
 
-std::vector<std::string> FileStruct::getTags(const std::string& fileName) {
-    std::vector<std::string> tags;
-    // store array in the class?
+QStringList FileStruct::getTags(const std::string& fileName) {
+    QStringList tags;
     std::map<std::string, std::string> tagsMap = data.getSections().at(fileName);
     for(auto& tag : tagsMap) {
         if(tag.first == "IsExist") {
             continue;
         }
-        tags.push_back(tag.first);
+        tags.push_back(QString::fromStdString(tag.first));
     }
     return tags;
 }
 
-std::vector<std::string> FileStruct::getAllTags() {
-    std::vector<std::string> tags;
+QStringList FileStruct::getAllTags() {
+    QStringList tags;
     if(!data.isSectionExist("Tags")) {
         return tags;
     }
-    //store array in the class?
     std::map<std::string, std::string> tagsMap = data.getSections().at("Tags");
     for(auto& tag : tagsMap) {
         if(tag.first == "IsExist") {
             continue;
         }
-        tags.push_back(tag.first);
+        tags.push_back(QString::fromStdString(tag.first));
     }
     return tags;
 }
 
-std::vector<std::string> FileStruct::getUntagged() {
-    //store array in the class?
-    std::vector<std::string> untaggedFiles;
+QStringList FileStruct::getUntagged() {
+    QStringList untaggedFiles;
     SectionsMap files = data.getSections();
     for(auto& file : files) {
         if(file.first == "Tags") {
             continue;
         }
         if(data.getKeysCount(file.first) == 1) {
-            untaggedFiles.push_back(file.first);
+            untaggedFiles.push_back(QString::fromStdString(file.first));
         }
     }
     return untaggedFiles;
 }
 
-std::vector<std::string> FileStruct::getTagged() {
-    //store array in the class?
-    std::vector<std::string> taggedFiles;
+QStringList FileStruct::getTagged() {
+    QStringList taggedFiles;
     SectionsMap files = data.getSections();
     for(auto& file : files) {
         if(file.first == "Tags") {
             continue;
         }
         if(data.getKeysCount(file.first) > 1) {
-            taggedFiles.push_back(file.first);
+            taggedFiles.push_back(QString::fromStdString(file.first));
         }
     }
     return taggedFiles;
 }
 
-std::vector<std::string> FileStruct::getFiltered() {
+QStringList FileStruct::getFiltered() {
     return filteredFiles;
 }
 
@@ -145,8 +133,8 @@ void FileStruct::removeUnusedTags() {
     if(!data.isSectionExist("Tags")) {
         return;
     }
-    std::map<std::string, std::string> tags = data.getSections().at("Tags"); // getAllTags()?
-    SectionsMap sections = data.getSections(); //getAllFiles()?
+    std::map<std::string, std::string> tags = data.getSections().at("Tags");
+    SectionsMap sections = data.getSections();
     for(auto& tag : tags) {
         bool isExist = false;
         for(auto& section : sections) {
@@ -164,20 +152,20 @@ void FileStruct::removeUnusedTags() {
     }
 }
 
-void FileStruct::groupFiles(const std::vector<std::string>& tags) {
+void FileStruct::groupFiles(const QStringList& tags) {
     filteredFiles.clear();
     SectionsMap files = data.getSections();
     for(auto& filePath : files) {
         bool containTags = true;
         if(filePath.first != "Tags") {
             for(auto& tag : tags) {
-                if(!data.isKeysExist(filePath.first, tag)) {
+                if(!data.isKeysExist(filePath.first, tag.toStdString())) {
                     containTags = false;
                     break;
                 }
             }
             if(containTags) {
-                filteredFiles.push_back(filePath.first);
+                filteredFiles.push_back(QString::fromStdString(filePath.first));
             }
         }
     }
@@ -189,11 +177,9 @@ void FileStruct::saveChanges(const std::string& pathToIni) {
 
 void FileStruct::saveToFolder(const std::string& path, const bool isMoving) {
     qDebug() << "Copying files to custom folder: \n";
-    std::vector<std::string> newFilteredFiles;
+    QStringList newFilteredFiles;
     for(auto& filePath : filteredFiles) {
-        QString qFilePath = QString::fromStdString(filePath);
-        QFileInfo file(qFilePath);
-        QString old_name = qFilePath;
+        QFileInfo file(filePath);
         QString new_name = QString::fromStdString(path) + "/" + file.fileName();
         if(QFile::exists(new_name)) {
             QFileInfo newFile(new_name);
@@ -208,14 +194,14 @@ void FileStruct::saveToFolder(const std::string& path, const bool isMoving) {
         }
         bool ok;
         if(isMoving) {
-            ok = QFile::rename(old_name, new_name);
-            data.renameSection(old_name.toStdString(), new_name.toStdString());
-            newFilteredFiles.push_back(new_name.toStdString());
-            qDebug() << old_name << " " << new_name << "\nMove - " << ok << "\n";
+            ok = QFile::rename(filePath, new_name);
+            data.renameSection(filePath.toStdString(), new_name.toStdString());
+            newFilteredFiles.push_back(new_name);
+            qDebug() << filePath << " " << new_name << "\nMove - " << ok << "\n";
         }
         else {
-            ok = QFile::copy(old_name, new_name);
-            qDebug() << old_name << " " << new_name << "\nCopy - " << ok << "\n";
+            ok = QFile::copy(filePath, new_name);
+            qDebug() << filePath << " " << new_name << "\nCopy - " << ok << "\n";
         }
     }
     if(!newFilteredFiles.empty()) {

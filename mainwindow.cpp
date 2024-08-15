@@ -65,8 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->FilteredButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->TaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
     connect(ui->UntaggedButton, &QRadioButton::clicked, this, &MainWindow::updateFileList);
-    connect(ui->RotateRightButton, &QPushButton::clicked, this, &MainWindow::rotateRight);
-    connect(ui->RotateLeftButton, &QPushButton::clicked, this, &MainWindow::rotateLeft);
+    connect(ui->RotateRightButton, &QPushButton::clicked, ui->graphicsView, &ImageView::rotateRight);
+    connect(ui->RotateLeftButton, &QPushButton::clicked, ui->graphicsView, &ImageView::rotateLeft);
     connect(ui->FileList, &QWidget::customContextMenuRequested, this, &MainWindow::showFilesContextMenu);
     connect(ui->TagList, &QWidget::customContextMenuRequested, this, &MainWindow::showTagsContextMenu);
 }
@@ -93,7 +93,6 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 void MainWindow::showImageViewWindow() {
     QStringList files;
-    // store items in class?
     QList<QListWidgetItem*> items = ui->FileList->findItems(QString("*"), Qt::MatchWrap | Qt::MatchWildcard);
 
     for(auto& item : items) {
@@ -114,15 +113,12 @@ void MainWindow::showTagsContextMenu(QPoint pos) {
     tagsContextMenu->exec(globalPos);
 }
 
-// make openFolder and AddFolder in one method?
 void MainWindow::openFolder() {
     QString folderName =  QFileDialog::getExistingDirectory(this, tr("Открыть папку"), ".", QFileDialog::ShowDirsOnly);
     if(folderName.isEmpty()) {
         return;
     }
     isSaved = false;
-//    ui->TagList->clear();
-//    ui->FileList->clear();
     fileStruct.openNewFolder(folderName.toStdString());
     qDebug() << "Opening folder: " << folderName;
     updateFileList();
@@ -134,19 +130,16 @@ void MainWindow::addFolder() {
         return;
     }
     isSaved = false;
-    std::vector<std::string> newFiles = fileStruct.addFolder(folderName.toStdString());
+    fileStruct.addFolder(folderName.toStdString());
     qDebug() << "Adding folder: " << folderName;
     updateFileList();
 }
 
-//make openIni and AddIni in one method or function?
 void MainWindow::openIni() {
     QString fileName =  QFileDialog::getOpenFileName(this, tr("Открыть файл с метками"), ".", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
-//    ui->TagList->clear();
-//    ui->FileList->clear();
     fileStruct.openData(fileName.toStdString());
     qDebug() << "Opening ini: " << fileName;
     updateFileList();
@@ -158,8 +151,6 @@ void MainWindow::addNewIni() {
         return;
     }
     isSaved = false;
-//    ui->TagList->clear();
-//    ui->FileList->clear();
     fileStruct.addData(fileName.toStdString());
     qDebug() << "Adding ini: " << fileName;
     updateFileList();
@@ -188,12 +179,7 @@ void MainWindow::addExistingTag() {
         return;
     }
     fileStruct.removeUnusedTags();
-    // use QString instead of std::string?
-    std::vector<std::string> tags = fileStruct.getAllTags();
-    QStringList QTags;
-    for(auto& tag : tags) {
-        QTags.push_back(QString::fromStdString(tag));
-    }
+    QStringList QTags = fileStruct.getAllTags();
     bool ok = false;
     QString tag = QInputDialog::getItem(this, "Выберите метки для фильтрации", "Метка: ", QTags, 0, false, &ok);
     if(ok && !tag.isEmpty()) {
@@ -215,12 +201,7 @@ void MainWindow::removeTag() {
         QMessageBox::information(this, "Сообщение", "Не выбрана метка");
         return;
     }
-    // use QString instead of std::string? QStringList?
-    QStringList QTags;
-    std::vector<std::string> tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
-    for(auto& tag : tags) {
-        QTags.push_back(QString::fromStdString(tag));
-    }
+    QStringList Tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
     QString tag = ui->TagList->currentItem()->text();
     fileStruct.removeTag(ui->FileList->currentItem()->text().toStdString(), tag.toStdString());
     isSaved = false;
@@ -235,20 +216,18 @@ void MainWindow::updateDisplay() {
         return;
     }
     ui->TagList->clear();
-    // use QString instead of std::string?
-    std::vector<std::string> tags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
-    for(auto& tag : tags) {
+    QStringList QTags = fileStruct.getTags(ui->FileList->currentItem()->text().toStdString());
+    for(auto& tag : QTags) {
         if(tag == "IsExist") {
             continue;
         }
-        ui->TagList->addItem(QString::fromStdString(tag));
+        ui->TagList->addItem(tag);
     }
     ui->graphicsView->setImage(ui->FileList->currentItem()->text());
 }
 
 void MainWindow::updateFileList() {
-    std::vector<std::string> files;
-    // store all this arrays in the class?
+    QStringList files;
     if(ui->UntaggedButton->isChecked()) {
         files = fileStruct.getUntagged();
     }
@@ -264,7 +243,7 @@ void MainWindow::updateFileList() {
     ui->FileList->clear();
     ui->TagList->clear();
     for(auto& file : files) {
-        ui->FileList->addItem(QString::fromStdString(file));
+        ui->FileList->addItem(file);
     }
 }
 
@@ -287,22 +266,15 @@ void MainWindow::showGroupDialog() {
         QMessageBox::information(this, "Сообщение", "Нечего фильтровать");
         return;
     }
-//     use QString?
-    QStringList QTags;
-    std::vector<std::string> tags = fileStruct.getAllTags();
-    for(auto& tag : tags) {
-        QTags.push_back(QString::fromStdString(tag));
-    }
-    groupUi->setNewTags(QTags);
+    groupUi->setNewTags(fileStruct.getAllTags());
     groupUi->exec();
 }
 
-void MainWindow::groupFiles(const std::vector<std::string>& tags) {
+void MainWindow::groupFiles(const QStringList& tags) {
     fileStruct.groupFiles(tags);
     updateFileList();
 }
 
-// make copy and move in one method?
 void MainWindow::copyGroup() {
     QString path = QFileDialog::getExistingDirectory(this, tr("Копировать в папку"), ".", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
@@ -317,23 +289,6 @@ void MainWindow::moveGroup() {
         fileStruct.saveToFolder(path.toStdString(), true);
         updateFileList();
     }
-}
-
-// make left and right rotation in one method?
-void MainWindow::rotateRight() {
-    if(!ui->graphicsView->scene()) {
-        return;
-    }
-    ui->graphicsView->rotate(90);
-    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
-}
-
-void MainWindow::rotateLeft() {
-    if(!ui->graphicsView->scene()) {
-        return;
-    }
-    ui->graphicsView->rotate(-90);
-    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 MainWindow::~MainWindow()

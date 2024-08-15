@@ -46,12 +46,10 @@ private slots:
     void updateDisplay();
     void updateFileList();
     void saveIni();
-    void groupFiles(const std::vector<std::string>& tags);
+    void groupFiles(const QStringList& tags);
     void copyGroup();
     void moveGroup();
     void showGroupDialog();
-    void rotateRight();
-    void rotateLeft();
     void showFilesContextMenu(QPoint);
     void showTagsContextMenu(QPoint);
     void showImageViewWindow();

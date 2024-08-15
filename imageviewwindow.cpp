@@ -21,8 +21,8 @@ ImageViewWindow::ImageViewWindow(QWidget *parent) :
 
     connect(goLeftAct, &QAction::triggered, this, &ImageViewWindow::goLeft);
     connect(goRightAct, &QAction::triggered, this, &ImageViewWindow::goRight);
-    connect(ui->RotateRightButton, &QPushButton::clicked, this, &ImageViewWindow::rotateRight);
-    connect(ui->RotateLeftButton, &QPushButton::clicked, this, &ImageViewWindow::rotateLeft);
+    connect(ui->RotateRightButton, &QPushButton::clicked, ui->graphicsView, &ImageView::rotateRight);
+    connect(ui->RotateLeftButton, &QPushButton::clicked, ui->graphicsView, &ImageView::rotateLeft);
 
 }
 
@@ -44,24 +44,6 @@ void ImageViewWindow::goRight() {
         currentImg++;
         ui->graphicsView->setImage(imageList[currentImg]);
     }
-}
-
-//make rotation in imageView?
-
-void ImageViewWindow::rotateRight() {
-    if(!ui->graphicsView->scene()) {
-        return;
-    }
-    ui->graphicsView->rotate(90);
-    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
-}
-
-void ImageViewWindow::rotateLeft() {
-    if(!ui->graphicsView->scene()) {
-        return;
-    }
-    ui->graphicsView->rotate(-90);
-    ui->graphicsView->fitInView(ui->graphicsView->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
 }
 
 ImageViewWindow::~ImageViewWindow()

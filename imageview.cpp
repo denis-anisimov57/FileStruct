@@ -31,3 +31,19 @@ void ImageView::setImage(QString filePath) {
     fitInView(this->scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
     centerOn(0, 0);
 }
+
+void ImageView::rotateLeft() {
+    if(!this->scene()) {
+        return;
+    }
+    rotate(-90);
+    fitInView(scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+}
+
+void ImageView::rotateRight() {
+    if(!this->scene()) {
+        return;
+    }
+    rotate(90);
+    fitInView(scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+}

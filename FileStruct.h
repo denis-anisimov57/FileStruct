@@ -1,6 +1,11 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <QFile>
+#include <QDir>
+#include <QDirIterator>
+#include <QDebug>
+#include <QStringList>
 #include "ini_file.h"
 
 class FileStruct {
@@ -14,19 +19,19 @@ class FileStruct {
 
         void addData(const std::string& pathToIni);
 
-        std::vector<std::string> addFolder(const std::string& path);
+        void addFolder(const std::string& path);
 
-        std::vector<std::string> getFiles();
+        QStringList getFiles();
 
-        std::vector<std::string> getTags(const std::string& fileName);
+        QStringList getTags(const std::string& fileName);
 
-        std::vector<std::string> getAllTags();
+        QStringList getAllTags();
 
-        std::vector<std::string> getUntagged();
+        QStringList getUntagged();
 
-        std::vector<std::string> getTagged();
+        QStringList getTagged();
 
-        std::vector<std::string> getFiltered();
+        QStringList getFiltered();
 
         bool isEmpty();
 
@@ -38,7 +43,7 @@ class FileStruct {
 
         void removeUnusedTags();
 
-        void groupFiles(const std::vector<std::string>& tags); //saves filenames with this tags
+        void groupFiles(const QStringList& tags); //saves filenames with this tags
 
         void saveToFolder(const std::string& path, const bool isMoving); // saves union from methods above to custom folder
 
@@ -47,6 +52,6 @@ class FileStruct {
         ~FileStruct();
 
     private:
-        std::vector<std::string> filteredFiles;
+        QStringList filteredFiles;
         IniFile data;
 };

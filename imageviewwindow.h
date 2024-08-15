@@ -29,8 +29,6 @@ private:
 private slots:
     void goLeft();
     void goRight();
-    void rotateRight();
-    void rotateLeft();
 };
 
 #endif // IMAGEVIEWWINDOW_H

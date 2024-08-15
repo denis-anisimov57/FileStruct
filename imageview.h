@@ -10,6 +10,8 @@ public:
     ImageView(QWidget* parent);
     virtual void wheelEvent(QWheelEvent* event) override;
     void setImage(QString filePath);
+    void rotateLeft();
+    void rotateRight();
 };
 
 #endif // IMAGEVIEW_H

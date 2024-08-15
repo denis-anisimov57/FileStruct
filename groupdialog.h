@@ -14,7 +14,7 @@ class GroupDialog : public QDialog
 public:
     explicit GroupDialog(QWidget *parent = nullptr);
 
-    void setNewTags(QStringList tags);
+    void setNewTags(const QStringList& tags);
 
     ~GroupDialog();
 
@@ -27,7 +27,7 @@ private slots:
     void removeTagFromList();
     void sendTagList();
 signals:
-    void dialogRes(const std::vector<std::string>& tags);
+    void dialogRes(const QStringList& tags);
 };
 
 #endif // GROUPDIALOG_H

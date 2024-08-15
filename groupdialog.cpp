@@ -15,7 +15,7 @@ GroupDialog::GroupDialog(QWidget *parent) :
     connect(this, &QDialog::accepted, this, &GroupDialog::sendTagList);
 }
 
-void GroupDialog::setNewTags(QStringList tags) {
+void GroupDialog::setNewTags(const QStringList& tags) {
     ui->TagsBox->clear();
     ui->TagsBox->addItems(tags);
 }
@@ -33,10 +33,9 @@ void GroupDialog::removeTagFromList() {
 
 void GroupDialog::sendTagList() {
     int c = ui->TagsList->count();
-    //QString?
-    std::vector<std::string> tags;
+    QStringList tags;
     for(int i = 0; i < c; i++) {
-        tags.push_back(ui->TagsList->item(i)->text().toStdString());
+        tags.push_back(ui->TagsList->item(i)->text());
     }
     emit dialogRes(tags);
 }
