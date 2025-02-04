@@ -4,9 +4,7 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <QVector>
-#include <QWheelEvent>
-#include <QDialogButtonBox>
+#include <QPlainTextEdit>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -36,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->FilterFilesAct, &QAction::triggered, this, &MainWindow::showGroupDialog);
     connect(ui->CopyFilteredAct, &QAction::triggered, this, &MainWindow::copyGroup);
     connect(ui->MoveFilteredAct, &QAction::triggered, this, &MainWindow::moveGroup);
+    connect(ui->OpenManAct, &QAction::triggered, this, &MainWindow::openManual);
 
     ui->RotateRightButton->setText("");
     ui->RotateLeftButton->setText("");
@@ -91,6 +90,46 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 }
 
+void MainWindow::openManual() {
+    QFile manFile(":/manual/Manual.txt");
+    if(!manFile.open(QIODevice::ReadOnly)) {
+        QMessageBox::information(0, "error", manFile.errorString());
+        return;
+    }
+    QString manualText;
+    QTextStream in(&manFile);
+    in.setCodec("UTF-8");
+    manualText = in.readAll();
+    manFile.close();
+
+    QDialog* manualUi = new QDialog(this);
+    manualUi->setGeometry(this->geometry());
+    QVBoxLayout* vertLayout = new QVBoxLayout(manualUi);
+    manualUi->setMinimumHeight(100);
+
+    QTextEdit* text = new QTextEdit(manualUi);
+    text->setReadOnly(true);
+    QString fontInfoStr = "[Font]:";
+    int fontIndex = manualText.indexOf(fontInfoStr); // Example: "[Font]:16,400."
+    while(fontIndex >= 0) {
+        fontIndex += fontInfoStr.size();
+        int valSize = manualText.indexOf(",", fontIndex) - fontIndex;
+        int fontSize = manualText.midRef(fontIndex, valSize).toInt();
+        fontIndex = manualText.indexOf(",", fontIndex) + 1;
+        valSize = manualText.indexOf(".", fontIndex) - fontIndex;
+        int fontWeight = manualText.midRef(fontIndex, valSize).toInt();
+        text->setCurrentFont(QFont("sanf serif", fontSize, fontWeight, false));
+        fontIndex = manualText.indexOf(".", fontIndex) + 1;
+        valSize = manualText.indexOf(fontInfoStr, fontIndex) - fontIndex;
+        text->insertPlainText(manualText.mid(fontIndex, valSize));
+        fontIndex = manualText.indexOf(fontInfoStr, fontIndex);
+    }
+    vertLayout->addWidget(text);
+    manualUi->setLayout(vertLayout);
+    manualUi->exec();
+    delete manualUi;
+}
+
 void MainWindow::showImageViewWindow() {
     QStringList files;
     QList<QListWidgetItem*> items = ui->FileList->findItems(QString("*"), Qt::MatchWrap | Qt::MatchWildcard);
@@ -114,7 +153,7 @@ void MainWindow::showTagsContextMenu(QPoint pos) {
 }
 
 void MainWindow::openFolder() {
-    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Открыть папку"), ".", QFileDialog::ShowDirsOnly);
+    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Открыть папку"), "", QFileDialog::ShowDirsOnly);
     if(folderName.isEmpty()) {
         return;
     }
@@ -125,7 +164,7 @@ void MainWindow::openFolder() {
 }
 
 void MainWindow::addFolder() {
-    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Добавить папку"), ".", QFileDialog::ShowDirsOnly);
+    QString folderName =  QFileDialog::getExistingDirectory(this, tr("Добавить папку"), "", QFileDialog::ShowDirsOnly);
     if(folderName.isEmpty()) {
         return;
     }
@@ -136,7 +175,7 @@ void MainWindow::addFolder() {
 }
 
 void MainWindow::openIni() {
-    QString fileName =  QFileDialog::getOpenFileName(this, tr("Открыть файл с метками"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Открыть файл с метками"), "", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -146,7 +185,7 @@ void MainWindow::openIni() {
 }
 
 void MainWindow::addNewIni() {
-    QString fileName =  QFileDialog::getOpenFileName(this, tr("Добавить файл с метками"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getOpenFileName(this, tr("Добавить файл с метками"), "", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -252,7 +291,7 @@ void MainWindow::saveIni() {
         QMessageBox::information(this, "Сообщение", "Нечего сохранять");
         return;
     }
-    QString fileName =  QFileDialog::getSaveFileName(this, tr("Сохранить файл с метками"), ".", "Inifiles (*.ini)");
+    QString fileName =  QFileDialog::getSaveFileName(this, tr("Сохранить файл с метками"), "", "Inifiles (*.ini)");
     if(fileName.isEmpty()) {
         return;
     }
@@ -276,7 +315,7 @@ void MainWindow::groupFiles(const QStringList& tags) {
 }
 
 void MainWindow::copyGroup() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Копировать в папку"), ".", QFileDialog::ShowDirsOnly);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Копировать в папку"), "", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
         fileStruct.saveToFolder(path.toStdString(), false);
         updateFileList();
@@ -284,7 +323,7 @@ void MainWindow::copyGroup() {
 }
 
 void MainWindow::moveGroup() {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Переместить в папку"), ".", QFileDialog::ShowDirsOnly);
+    QString path = QFileDialog::getExistingDirectory(this, tr("Переместить в папку"), "", QFileDialog::ShowDirsOnly);
     if(!path.isEmpty()) {
         fileStruct.saveToFolder(path.toStdString(), true);
         updateFileList();

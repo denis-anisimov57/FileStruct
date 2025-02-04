@@ -157,10 +157,17 @@
     <addaction name="CopyFilteredAct"/>
     <addaction name="MoveFilteredAct"/>
    </widget>
+   <widget class="QMenu" name="ManualMenu">
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="OpenManAct"/>
+   </widget>
    <addaction name="OpenMenu"/>
    <addaction name="AddMenu"/>
    <addaction name="SaveMenu"/>
    <addaction name="FilterMenu"/>
+   <addaction name="ManualMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="FilterFilesAct">
@@ -201,6 +208,11 @@
   <action name="SaveTagsAct">
    <property name="text">
     <string>Сохранить метки</string>
+   </property>
+  </action>
+  <action name="OpenManAct">
+   <property name="text">
+    <string>Открыть справку</string>
    </property>
   </action>
  </widget>

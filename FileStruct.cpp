@@ -1,9 +1,5 @@
 #include "FileStruct.h"
-#include <QFile>
-#include <QDir>
-#include <QDirIterator>
 #include <QDebug>
-#include <fstream>
 
 void FileStruct::openNewFolder(const std::string& path) {
     /*"*.png", "*.jpg", "*.jpeg", "*.webp"*/

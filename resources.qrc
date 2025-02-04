@@ -5,4 +5,7 @@
         <file>icon.ico</file>
         <file>imgLoadError.png</file>
     </qresource>
+    <qresource prefix="/manual">
+        <file>Manual.txt</file>
+    </qresource>
 </RCC>

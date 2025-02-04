@@ -53,6 +53,7 @@ private slots:
     void showFilesContextMenu(QPoint);
     void showTagsContextMenu(QPoint);
     void showImageViewWindow();
+    void openManual();
 };
 
 #endif // MAINWINDOW_H

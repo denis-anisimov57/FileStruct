@@ -1,11 +1,6 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <QFile>
-#include <QDir>
 #include <QDirIterator>
 #include <QDebug>
-#include <QStringList>
 #include "ini_file.h"
 
 class FileStruct {
